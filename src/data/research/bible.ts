@@ -1,0 +1,375 @@
+import { bce, cite, entry, source, unanchored } from "./helpers.ts";
+
+const gateway = (passage: string) =>
+  `https://www.biblegateway.com/passage/?search=${encodeURIComponent(passage)}&version=KJV`;
+export const bibleSources = [
+  source(
+    "matthew",
+    "Gospel of Matthew · King James Version",
+    "The New Testament",
+    gateway("Matthew"),
+  ),
+  source(
+    "acts",
+    "Acts of the Apostles · King James Version",
+    "The New Testament",
+    gateway("Acts"),
+  ),
+  source(
+    "isaiah-scroll",
+    "The Great Isaiah Scroll",
+    "The Israel Museum, Jerusalem",
+    "https://dss.collections.imj.org.il/isaiah",
+  ),
+  source(
+    "british-library",
+    "Explore the collection: Gutenberg Bible",
+    "British Library",
+    "https://www.bl.uk/collection/explore-the-collection",
+  ),
+  source(
+    "kjv-edition",
+    "The King James Version of the Bible",
+    "Project Gutenberg · bibliographic record",
+    "https://www.gutenberg.org/ebooks/30",
+  ),
+];
+const passages: [string, string, string, string, string[]][] = [
+  [
+    "creation-genesis",
+    "The days of creation",
+    "Genesis 1:1–2:3",
+    "Genesis opens with a sequence of creation and a seventh day of rest.",
+    ["creation"],
+  ],
+  [
+    "eden-genesis",
+    "The garden of Eden",
+    "Genesis 2:4–25",
+    "A garden, its rivers, and the first human partnership frame the Eden narrative.",
+    ["eden"],
+  ],
+  [
+    "eden-expulsion",
+    "Departure from Eden",
+    "Genesis 3:1–24",
+    "The story describes disobedience, altered relationships, and expulsion from the garden.",
+    ["eden"],
+  ],
+  [
+    "cain-abel",
+    "Cain and Abel",
+    "Genesis 4:1–16",
+    "A story of brothers connects sacrifice, violence, and exile.",
+    ["origins"],
+  ],
+  [
+    "nephilim-genesis",
+    "The Nephilim passage",
+    "Genesis 6:1–4",
+    "A short and much-interpreted passage precedes the flood account.",
+    ["nephilim"],
+  ],
+  [
+    "noah-covenant",
+    "The rainbow covenant",
+    "Genesis 9:8–17",
+    "A covenant follows the flood, with the rainbow as its sign.",
+    ["flood-narratives"],
+  ],
+  [
+    "babel",
+    "The tower of Babel",
+    "Genesis 11:1–9",
+    "The narrative connects a city and tower with dispersed peoples and languages.",
+    ["babel"],
+  ],
+  [
+    "abram-call",
+    "The call of Abram",
+    "Genesis 12:1–9",
+    "Abram is called to leave his homeland and journeys into Canaan.",
+    ["abraham"],
+  ],
+  [
+    "abram-egypt",
+    "Abram travels to Egypt",
+    "Genesis 12:10–20",
+    "Famine brings Abram and Sarai into Egypt.",
+    ["abraham", "ancient-egypt"],
+  ],
+  [
+    "abram-lot",
+    "Abram and Lot separate",
+    "Genesis 13:5–18",
+    "Their households separate, with Lot choosing the Jordan plain.",
+    ["abraham"],
+  ],
+  [
+    "melchizedek-genesis",
+    "Melchizedek meets Abram",
+    "Genesis 14:18–20",
+    "The king of Salem blesses Abram and receives a tenth.",
+    ["abraham", "melchizedek"],
+  ],
+  [
+    "abraham-covenant",
+    "The covenant with Abram",
+    "Genesis 15:1–21",
+    "A promise of descendants and land is expressed through a covenant scene.",
+    ["abraham"],
+  ],
+  [
+    "hagar-ishmael",
+    "Hagar and Ishmael",
+    "Genesis 16:1–16",
+    "Hagar’s flight and return precede the birth of Ishmael.",
+    ["abraham"],
+  ],
+  [
+    "abraham-name",
+    "Abram becomes Abraham",
+    "Genesis 17:1–14",
+    "A changed name accompanies the covenant of circumcision.",
+    ["abraham"],
+  ],
+  [
+    "sodom",
+    "The destruction of Sodom",
+    "Genesis 19:1–29",
+    "Lot’s escape forms part of the account of the cities’ destruction.",
+    ["catastrophe"],
+  ],
+  [
+    "isaac-birth",
+    "The birth of Isaac",
+    "Genesis 21:1–7",
+    "Sarah gives birth to Isaac in the narrative of the promised descendants.",
+    ["abraham"],
+  ],
+  [
+    "binding-isaac",
+    "The binding of Isaac",
+    "Genesis 22:1–19",
+    "Abraham’s test ends with a substitute sacrifice.",
+    ["abraham"],
+  ],
+  [
+    "jesus-birth-matthew",
+    "The birth of Jesus in Matthew",
+    "Matthew 1:18–25",
+    "Matthew relates Jesus’s birth through Joseph’s dream and naming of the child.",
+    ["jesus", "nativity"],
+  ],
+  [
+    "magi",
+    "The visitors from the east",
+    "Matthew 2:1–12",
+    "The Magi follow a star and bring gifts to the child.",
+    ["jesus", "nativity"],
+  ],
+  [
+    "egypt-flight-matthew",
+    "The flight into Egypt",
+    "Matthew 2:13–15",
+    "Joseph takes the child and his mother to Egypt after a warning dream.",
+    ["jesus", "nativity", "ancient-egypt"],
+  ],
+  [
+    "herod-matthew",
+    "Herod and the children of Bethlehem",
+    "Matthew 2:16–18",
+    "Matthew describes Herod’s violent response to the Magi’s departure.",
+    ["jesus", "nativity"],
+  ],
+  [
+    "nazareth-return",
+    "The return to Nazareth",
+    "Matthew 2:19–23",
+    "The family returns after Herod’s death and settles in Nazareth.",
+    ["jesus"],
+  ],
+  [
+    "baptism-matthew",
+    "The baptism of Jesus",
+    "Matthew 3:13–17",
+    "John baptizes Jesus in the Jordan.",
+    ["jesus", "john-baptist"],
+  ],
+  [
+    "temptation-matthew",
+    "The wilderness temptation",
+    "Matthew 4:1–11",
+    "A sequence of temptations follows Jesus’s fasting in the wilderness.",
+    ["jesus"],
+  ],
+  [
+    "beatitudes",
+    "The Beatitudes",
+    "Matthew 5:1–12",
+    "The opening of the Sermon on the Mount names those called blessed.",
+    ["jesus"],
+  ],
+  [
+    "last-supper",
+    "The Last Supper",
+    "Matthew 26:17–30",
+    "A Passover meal anticipates betrayal and gives bread and wine a shared meaning.",
+    ["jesus"],
+  ],
+  [
+    "arrest-jesus",
+    "The arrest in Gethsemane",
+    "Matthew 26:47–56",
+    "Judas arrives with an armed group and Jesus is taken into custody.",
+    ["jesus"],
+  ],
+  [
+    "crucifixion-matthew",
+    "The crucifixion in Matthew",
+    "Matthew 27:32–56",
+    "Matthew narrates the execution of Jesus and the responses of those present.",
+    ["jesus", "crucifixion"],
+  ],
+  [
+    "resurrection-matthew",
+    "The resurrection account in Matthew",
+    "Matthew 28:1–10",
+    "Women visit the tomb and the narrative announces Jesus’s resurrection.",
+    ["jesus", "resurrection"],
+  ],
+  [
+    "great-commission",
+    "The Great Commission",
+    "Matthew 28:16–20",
+    "The closing scene commissions the disciples to teach and baptize.",
+    ["jesus"],
+  ],
+  [
+    "ascension-acts",
+    "The ascension in Acts",
+    "Acts 1:6–11",
+    "The opening of Acts describes Jesus’s departure before the disciples.",
+    ["jesus"],
+  ],
+  [
+    "pentecost-acts",
+    "Pentecost",
+    "Acts 2:1–13",
+    "The gathering hears speech in different languages after the arrival of the Spirit.",
+    ["pentecost"],
+  ],
+  [
+    "community-acts",
+    "The early community in Acts",
+    "Acts 2:42–47",
+    "Teaching, shared meals, prayer, and material sharing characterize the community.",
+    ["pentecost"],
+  ],
+];
+export const bibleEvents = [
+  ...passages.map(([id, title, passage, summary, topics]) =>
+    entry({
+      id,
+      title,
+      year: null,
+      dateLabel: "Undated in the passage",
+      dateBasis: unanchored,
+      trackId: "bible",
+      kind: "Sacred narrative",
+      summary,
+      topicIds: ["bible", ...topics],
+      citations: [
+        cite(
+          passage.startsWith("Genesis")
+            ? "genesis"
+            : passage.startsWith("Matthew")
+              ? "matthew"
+              : "acts",
+          passage,
+          gateway(passage.replaceAll("–", "-")),
+        ),
+      ],
+    }),
+  ),
+  entry({
+    id: "isaiah-scroll-copy",
+    title: "Copying the Great Isaiah Scroll",
+    year: bce(125),
+    trackId: "bible",
+    kind: "Historical document",
+    region: "Levant",
+    summary:
+      "The Great Isaiah Scroll preserves an almost complete ancient copy of Isaiah.",
+    dateBasis:
+      "The Israel Museum dates this manuscript to about 125 BCE. This dates the surviving copy, not the composition of Isaiah.",
+    topicIds: ["bible", "manuscripts", "dating-methods"],
+    citations: [
+      cite(
+        "isaiah-scroll",
+        "Overview · age and contents of 1QIsaa",
+        "https://dss.collections.imj.org.il/isaiah",
+      ),
+    ],
+  }),
+  entry({
+    id: "isaiah-scroll-discovery",
+    title: "The Isaiah Scroll is found at Qumran",
+    year: 1947,
+    approximate: false,
+    trackId: "bible",
+    kind: "Archaeology",
+    region: "Levant",
+    summary:
+      "The scroll was among the manuscripts found in the first Qumran cave.",
+    dateBasis: "Modern discovery year provided by the Israel Museum.",
+    topicIds: ["bible", "manuscripts"],
+    citations: [
+      cite(
+        "isaiah-scroll",
+        "Overview · discovery in 1947",
+        "https://dss.collections.imj.org.il/isaiah",
+      ),
+    ],
+  }),
+  entry({
+    id: "gutenberg-bible",
+    title: "The Gutenberg Bible",
+    year: 1455,
+    trackId: "bible",
+    kind: "Publication",
+    region: "Western Europe",
+    summary:
+      "The printed Latin Bible became a landmark in European book production.",
+    dateBasis:
+      "The British Library collection labels its Gutenberg Bible 1455.",
+    topicIds: ["bible", "manuscripts"],
+    citations: [
+      cite(
+        "british-library",
+        "Collection highlight: Gutenberg Bible, 1455",
+        "https://www.bl.uk/collection/explore-the-collection",
+      ),
+    ],
+  }),
+  entry({
+    id: "king-james-bible",
+    title: "Publication of the King James Bible",
+    year: 1611,
+    approximate: false,
+    trackId: "bible",
+    kind: "Publication",
+    region: "British Isles",
+    summary:
+      "The English translation supplies the public-domain wording linked from this atlas.",
+    dateBasis: "The bibliographic record identifies first publication in 1611.",
+    topicIds: ["bible", "manuscripts"],
+    citations: [
+      cite(
+        "kjv-edition",
+        "About this eBook · bibliographic summary",
+        "https://www.gutenberg.org/ebooks/30",
+      ),
+    ],
+  }),
+];

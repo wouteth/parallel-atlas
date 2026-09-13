@@ -1,0 +1,38 @@
+{
+  "name": "parallel-atlas",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.26.2",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "dev:server": "node --env-file-if-exists=.env server/index.mjs",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "test": "node --test src/lib/*.test.ts server/*.test.mjs",
+    "test:browser": "playwright test",
+    "export:data": "node tools/export-content.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@hugeicons/react": "catalog:",
+    "@hugeicons/core-free-icons": "catalog:",
+    "openid-client": "^6.8.1"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "prettier": "catalog:",
+    "@playwright/test": "catalog:"
+  }
+}
