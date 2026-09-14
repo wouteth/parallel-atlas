@@ -140,7 +140,7 @@ const topics: [
     "sinai",
     "Sinai in Exodus",
     "Place",
-    "The mountain setting of encounter and covenant in Exodus. The atlas does not identify a modern archaeological location from the narrative alone.",
+    "The mountain setting of encounter and covenant in Exodus. Project Timeline does not identify a modern archaeological location from the narrative alone.",
     ["exodus", "moses", "covenant"],
     "https://www.biblegateway.com/passage/?search=Exodus+19&version=KJV",
   ],

@@ -4,13 +4,20 @@ export type TrackId =
   | "urantia"
   | "law-of-one"
   | "plato"
-  | "alternative";
+  | "alternative"
+  | "tolkien"
+  | "hindu"
+  | "norse"
+  | "jan-val-ellam"
+  | "terra-papers"
+  | "sitchin";
 export type EvidenceKind =
   | "Climate record"
   | "Scientific study"
   | "Archaeology"
   | "Historical document"
   | "Publication"
+  | "Literary fiction"
   | "Sacred narrative"
   | "Revelatory text"
   | "Channeled account"
@@ -23,6 +30,8 @@ export interface Track {
   shortName: string;
   color: string;
   description: string;
+  status?: "Confirmed" | "To add" | "Candidate";
+  researchNote?: string;
 }
 export interface Citation {
   sourceId: string;
@@ -42,7 +51,7 @@ export interface Source {
     affiliateDisclosure: string | null;
   };
 }
-export interface AtlasEvent {
+export interface TimelineEvent {
   id: string;
   trackId: TrackId;
   title: string;
@@ -60,8 +69,8 @@ export interface AtlasEvent {
   citations: Citation[];
   gap?: { forEventIds: string[]; explanation: string };
 }
-export type DatedEvent = AtlasEvent & { year: number };
-export const isDatedEvent = (event: AtlasEvent): event is DatedEvent =>
+export type DatedEvent = TimelineEvent & { year: number };
+export const isDatedEvent = (event: TimelineEvent): event is DatedEvent =>
   event.year !== null;
 export interface GlossaryEntry {
   id: string;
@@ -85,12 +94,4 @@ export interface SymbolEntry {
     citations: Citation[];
     status: "To be researched" | "Reviewed";
   }[];
-}
-export interface SavedItem {
-  eventId: string;
-  kind: "bookmark" | "favorite";
-}
-export interface Account {
-  id: string;
-  name: string;
 }

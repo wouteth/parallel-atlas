@@ -1,3 +1,11 @@
+import {
+  SearchField,
+  SelectField,
+  SelectItem,
+  Button,
+  Input,
+} from "./ui/Controls";
+import { scaleLinear } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { DatedEvent, Track } from "../data/types";
@@ -15,33 +23,81 @@ import type { WindowRange } from "../lib/time";
 import { Icon } from "./Icon";
 import { Picture } from "./Picture";
 import { Modal } from "./Modal";
-import { navigate } from "../lib/router";
+import { navigate, timelineEventHref } from "../lib/router";
+import { civilInputYear, fitEventWindow } from "../lib/explorer";
 
-import { eventById } from "../data/events";
-import { layoutTimeline } from "../lib/layout";
+import {
+  layoutTimeline,
+  timelineHeight,
+  stripeStart,
+  populatedTracks,
+} from "../lib/layout";
 export function Timeline({
   tracks,
   events,
   mobile,
   focusId,
+  range,
+  onRangeChange,
+  onBrowse,
+  unplacedCount,
 }: {
   tracks: Track[];
   events: DatedEvent[];
   mobile: boolean;
   focusId?: string;
+  range: WindowRange;
+  onRangeChange: (range: WindowRange) => void;
+  onBrowse: () => void;
+  unplacedCount: number;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(1000);
-  const [range, setRange] = useState<WindowRange>(INITIAL_RANGE);
+  const currentRange = useRef(range);
+  currentRange.current = range;
+  const changeRange = useRef(onRangeChange);
+  changeRange.current = onRangeChange;
+  function setRange(
+    next: WindowRange | ((current: WindowRange) => WindowRange),
+  ) {
+    const value =
+      typeof next === "function" ? next(currentRange.current) : next;
+    if (
+      value[0] === currentRange.current[0] &&
+      value[1] === currentRange.current[1]
+    )
+      return;
+    currentRange.current = value;
+    changeRange.current(value);
+  }
+  const [customDates, setCustomDates] = useState(false);
+  const [dateError, setDateError] = useState("");
+  const [touchPan, setTouchPan] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const dragStarted = useRef(false);
+  const suppressClick = useRef(false);
+  const [clusterQuery, setClusterQuery] = useState("");
+  const fitted = fitEventWindow(events);
+  const inView = events.filter(
+    (event) =>
+      !event.gap &&
+      event.year <= range[1] &&
+      (event.endYear ?? event.year) >= range[0],
+  ).length;
   const [cluster, setCluster] = useState<DatedEvent[] | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
-  const height = mobile ? 650 : 550;
+  const populated = populatedTracks(tracks, events, range);
+  const height = timelineHeight(tracks.length, mobile, populated.length);
   const padding = mobile ? 66 : 48;
   const length = (mobile ? height : width) - padding * 2;
-  const position = (year: number) =>
-    padding + ((year - range[0]) / (range[1] - range[0])) * length;
+  const position = scaleLinear()
+    .domain(range)
+    .range([padding, padding + length]);
   const step = markerStep(range, length);
   const markers = timeMarkers(range, length);
+  const atStart = range[0] <= FULL_RANGE[0];
+  const atPresent = range[1] >= FULL_RANGE[1];
+  const fullSpan = FULL_RANGE[1] - FULL_RANGE[0];
   useEffect(() => {
     const node = container.current;
     if (!node) return;
@@ -52,17 +108,24 @@ export function Timeline({
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    if (!focusId) return;
-    const event = eventById[focusId];
-    if (event && event.year !== null)
-      setRange(clampRange([event.year - 1500, event.year + 1500]));
-    // Only a new deep link should move the viewport; filtering should preserve exploration.
-  }, [focusId]);
-  useEffect(() => {
     const node = container.current;
     if (!node) return;
     function wheel(event: WheelEvent) {
+      // Preserve page scrolling; only horizontal intent belongs to the timeline.
+      const zoom = event.ctrlKey || event.metaKey;
+      const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      if (!zoom && (mobile || (!horizontal && !event.shiftKey))) return;
       event.preventDefault();
+      const unit =
+        event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? length : 1;
+      if (!zoom) {
+        const delta = (horizontal ? event.deltaX : event.deltaY) * unit;
+        setRange((current) => {
+          const years = (delta / length) * (current[1] - current[0]);
+          return clampRange([current[0] + years, current[1] + years]);
+        });
+        return;
+      }
       const rect = node!.getBoundingClientRect();
       const anchor = Math.max(
         0,
@@ -76,7 +139,7 @@ export function Timeline({
       setRange((current) =>
         zoomRange(
           current,
-          Math.exp(Math.max(-0.8, Math.min(0.8, event.deltaY * 0.002))),
+          Math.exp(Math.max(-0.8, Math.min(0.8, event.deltaY * unit * 0.002))),
           anchor,
         ),
       );
@@ -91,6 +154,22 @@ export function Timeline({
   function movePointer(event: ReactPointerEvent<HTMLDivElement>) {
     const previous = pointers.current.get(event.pointerId);
     if (!previous) return;
+    if (!dragStarted.current) {
+      // A small movement remains a click/tap. Capture only once dragging starts,
+      // so event buttons keep their normal click and keyboard behavior.
+      if (
+        pointers.current.size < 2 &&
+        Math.abs(
+          mobile ? event.clientY - previous.y : event.clientX - previous.x,
+        ) < 6
+      )
+        return;
+      dragStarted.current = true;
+      suppressClick.current = true;
+      setDragging(true);
+      for (const id of pointers.current.keys())
+        event.currentTarget.setPointerCapture(id);
+    }
     const oldPoints = [...pointers.current.values()];
     pointers.current.set(event.pointerId, {
       x: event.clientX,
@@ -122,6 +201,13 @@ export function Timeline({
       });
     }
   }
+  function endPointer(event: ReactPointerEvent<HTMLDivElement>) {
+    pointers.current.delete(event.pointerId);
+    if (!pointers.current.size) {
+      dragStarted.current = false;
+      setDragging(false);
+    }
+  }
   function pan(direction: number) {
     setRange((current) => {
       const delta = (current[1] - current[0]) * 0.25 * direction;
@@ -130,6 +216,158 @@ export function Timeline({
   }
   return (
     <div className="timeline-shell">
+      <div className="timeline-controls">
+        <div className="zoom-controls">
+          <Button
+            className="icon-button"
+            onClick={() => pan(-1)}
+            aria-label="Pan earlier"
+            disabled={atStart}
+            title={
+              atStart ? "Earliest supported date reached" : "Pan earlier (←)"
+            }
+          >
+            <Icon name="left" size={16} />
+          </Button>
+          <Button
+            className="icon-button"
+            onClick={() => setRange((current) => zoomRange(current, 2))}
+            aria-label="Zoom out"
+            disabled={range[1] - range[0] >= fullSpan}
+            title="Zoom out (−)"
+          >
+            <Icon name="minus" size={16} />
+          </Button>
+          <Button
+            className="reset-view"
+            onClick={() => setRange(INITIAL_RANGE)}
+          >
+            Reset view
+          </Button>
+          <Button
+            className="icon-button"
+            onClick={() => setRange((current) => zoomRange(current, 0.5))}
+            aria-label="Zoom in"
+            disabled={range[1] - range[0] <= 8}
+            title="Zoom in (+)"
+          >
+            <Icon name="plus" size={16} />
+          </Button>
+          <Button
+            className="icon-button"
+            onClick={() => pan(1)}
+            aria-label="Pan later"
+            disabled={atPresent}
+            title={
+              atPresent ? "Present reached — pan earlier" : "Pan later (→)"
+            }
+          >
+            <Icon name="right" size={16} />
+          </Button>
+        </div>
+        <Button
+          className="chip"
+          disabled={!fitted}
+          onClick={() => fitted && setRange(fitted)}
+        >
+          Fit results
+        </Button>
+        <Button
+          className="chip"
+          aria-expanded={customDates}
+          onClick={() => {
+            setCustomDates(!customDates);
+            setDateError("");
+          }}
+        >
+          Set dates
+        </Button>
+        {mobile && (
+          <Button
+            className="chip"
+            aria-pressed={touchPan}
+            onClick={() => setTouchPan(!touchPan)}
+          >
+            {touchPan ? "Done moving" : "Move timeline"}
+          </Button>
+        )}
+      </div>
+      {customDates && (
+        <form
+          className="custom-date-range"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const data = new FormData(event.currentTarget);
+            const start = civilInputYear(
+              String(data.get("start")),
+              String(data.get("startEra")),
+            );
+            const end = civilInputYear(
+              String(data.get("end")),
+              String(data.get("endEra")),
+            );
+            if (start === null || end === null || start >= end) {
+              setDateError(
+                "Enter whole years greater than zero, with the start before the end and no date beyond the present.",
+              );
+              return;
+            }
+            if (end - start < 8) {
+              setDateError(
+                "Choose a window of at least 8 years. Individual year markers appear when zoomed in.",
+              );
+              return;
+            }
+            setRange(clampRange([start, end]));
+            setCustomDates(false);
+            setDateError("");
+          }}
+        >
+          <label>
+            Start year
+            <Input
+              name="start"
+              aria-label="Start year"
+              inputMode="numeric"
+              defaultValue={Math.round(range[0] <= 0 ? 1 - range[0] : range[0])}
+            />
+          </label>
+          <label>
+            Start era
+            <SelectField
+              name="startEra"
+              aria-label="Start era"
+              defaultValue={range[0] <= 0 ? "BCE" : "CE"}
+            >
+              <SelectItem value="BCE">BCE</SelectItem>
+              <SelectItem value="CE">CE</SelectItem>
+            </SelectField>
+          </label>
+          <span aria-hidden="true">→</span>
+          <label>
+            End year
+            <Input
+              name="end"
+              aria-label="End year"
+              inputMode="numeric"
+              defaultValue={Math.round(range[1] <= 0 ? 1 - range[1] : range[1])}
+            />
+          </label>
+          <label>
+            End era
+            <SelectField
+              name="endEra"
+              aria-label="End era"
+              defaultValue={range[1] <= 0 ? "BCE" : "CE"}
+            >
+              <SelectItem value="BCE">BCE</SelectItem>
+              <SelectItem value="CE">CE</SelectItem>
+            </SelectField>
+          </label>
+          <Button className="button primary">Apply dates</Button>
+          {dateError && <p role="alert">{dateError}</p>}
+        </form>
+      )}
       <div className="era-presets" aria-label="Timeline date presets">
         {(
           [
@@ -137,33 +375,60 @@ export function Timeline({
             ["Ancient world", [-11999, 500]],
             ["Recorded history", [-3999, THIS_YEAR]],
             ["Modern era", [1400, THIS_YEAR]],
-            ["All dated accounts", FULL_RANGE],
+            ["Deep time", FULL_RANGE],
           ] as [string, WindowRange][]
         ).map(([label, window]) => (
-          <button className="chip" key={label} onClick={() => setRange(window)}>
+          <Button className="chip" key={label} onClick={() => setRange(window)}>
             {label}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="timeline-topbar">
         <span>
           <span className="live-dot" />
-          THE SHARED TIMELINE
+          DATE RANGE
         </span>
         <span className="range-label">
           {calendarYear(range[0])} <span>—</span> {calendarYear(range[1])}
         </span>
         <span className="marker-caption" aria-live="polite">
-          {step.toLocaleString()}-year intervals
+          {step.toLocaleString("en")}-year intervals
         </span>
       </div>
+      <div className="timeline-gesture-guide" id="timeline-gesture-guide">
+        <span>
+          {mobile
+            ? touchPan
+              ? "Drag to pan · pinch to zoom · tap Done moving to scroll"
+              : "Scroll to read · + / − to zoom · tap an entry to open"
+            : "Scroll sideways or drag to pan · Shift + wheel to pan · Ctrl/⌘ + wheel to zoom"}
+        </span>
+        {(atStart || atPresent) && (
+          <span className="timeline-limit">
+            {atStart && atPresent
+              ? "Full time range"
+              : atPresent
+                ? "Present reached · pan earlier ←"
+                : "Earliest date reached"}
+          </span>
+        )}
+      </div>
       <div
-        className={`timeline-canvas ${mobile ? "vertical" : ""}`}
+        className={`timeline-canvas ${mobile ? "vertical" : ""} ${dragging ? "is-dragging" : ""}`}
         ref={container}
-        style={{ height }}
+        style={{ height, touchAction: mobile && !touchPan ? "pan-y" : "none" }}
         tabIndex={0}
         role="region"
         aria-label="Interactive history timeline. Use plus and minus to zoom, arrow keys to pan, Home to reset."
+        aria-describedby="timeline-gesture-guide"
+        onDragStart={(event) => event.preventDefault()}
+        onClickCapture={(event) => {
+          if (suppressClick.current && event.detail > 0) {
+            event.preventDefault();
+            event.stopPropagation();
+            suppressClick.current = false;
+          }
+        }}
         onKeyDown={(event) => {
           if (event.target !== event.currentTarget) return;
           if (
@@ -187,20 +452,28 @@ export function Timeline({
           if (event.key === "Home") setRange(INITIAL_RANGE);
         }}
         onPointerDown={(event) => {
-          if ((event.target as HTMLElement).closest("button,a")) return;
+          if (event.pointerType === "touch" && mobile && !touchPan) return;
+          const control = (event.target as Element).closest("button,a");
+          if (control && !control.classList.contains("timeline-event")) return;
           if (event.pointerType === "mouse" && event.button !== 0) return;
+          if (!pointers.current.size) suppressClick.current = false;
           pointers.current.set(event.pointerId, {
             x: event.clientX,
             y: event.clientY,
           });
-          event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={movePointer}
-        onPointerUp={(event) => pointers.current.delete(event.pointerId)}
-        onPointerCancel={(event) => pointers.current.delete(event.pointerId)}
-        onLostPointerCapture={(event) =>
-          pointers.current.delete(event.pointerId)
-        }
+        onPointerUp={endPointer}
+        onPointerCancel={endPointer}
+        onLostPointerCapture={(event) => {
+          // Touch starts with implicit capture on the card. Its lost-capture
+          // event bubbles when we transfer capture to the canvas for dragging.
+          if (event.target === event.currentTarget) endPointer(event);
+        }}
+        onPointerLeave={(event) => {
+          if (!event.currentTarget.hasPointerCapture(event.pointerId))
+            endPointer(event);
+        }}
       >
         <svg
           width="100%"
@@ -279,7 +552,7 @@ export function Timeline({
           {tracks.map((track, index) => {
             const line = mobile
               ? width / 2 + (index === 0 ? -15 : 15)
-              : 245 + index * 12;
+              : stripeStart(populated.length) + index * 12;
             return (
               <line
                 key={track.id}
@@ -304,8 +577,8 @@ export function Timeline({
               : group.left + 40;
             const cardY = mobile
               ? group.top + 24
-              : group.top < 245
-                ? group.top + 57
+              : group.top < stripeStart(populated.length)
+                ? group.top + 72
                 : group.top;
             return (
               <g key={group.events[0]!.id}>
@@ -396,8 +669,8 @@ export function Timeline({
             }
             onClick={() =>
               group.events.length > 1
-                ? setCluster(group.events)
-                : navigate(`/timeline/event/${group.events[0]!.id}`)
+                ? (setClusterQuery(""), setCluster(group.events))
+                : navigate(timelineEventHref(group.events[0]!.id).slice(1))
             }
             aria-label={`${group.events[0]!.title}, ${group.track.name}${group.events.length > 1 ? `, ${group.events.length} nearby entries` : ""}`}
           >
@@ -405,97 +678,116 @@ export function Timeline({
             <span>
               <small>
                 {group.track.shortName}
-                {group.events.length > 1 && <b>+{group.events.length - 1}</b>}
+                {group.events.length > 1 && (
+                  <b>{group.events.length} accounts</b>
+                )}
               </small>
               <strong>{group.events[0]!.title}</strong>
+              <time>
+                {group.events[0]!.approximate ? "c. " : ""}
+                {calendarYear(group.events[0]!.year)}
+                {group.events[0]!.endYear !== undefined
+                  ? ` – ${calendarYear(group.events[0]!.endYear!)}`
+                  : ""}
+              </time>
             </span>
           </button>
         ))}
         {!groups.length && (
           <div className="timeline-empty">
-            No dated entries in this window. Undated accounts remain in the
-            catalog below.
-            <br />
-            <button onClick={() => setRange(INITIAL_RANGE)}>
-              Return to the overview
-            </button>
+            <strong>
+              {events.length
+                ? "Matching accounts are outside this date range."
+                : "No dated accounts in this selection."}
+            </strong>
+            <p>
+              {events.length
+                ? "Fit the timeline to bring your results into view."
+                : unplacedCount
+                  ? `${unplacedCount} accounts have no calendar date. Read their narrative chronology in the account list.`
+                  : "Try another topic or add a track."}
+            </p>
+            {fitted ? (
+              <Button
+                className="button secondary"
+                onClick={() => setRange(fitted)}
+              >
+                Show matching dates
+              </Button>
+            ) : (
+              <Button className="button secondary" onClick={onBrowse}>
+                Browse accounts
+              </Button>
+            )}
           </div>
         )}
       </div>
       <div className="timeline-bottombar">
         <span>
           {mobile
-            ? "Drag up or down · pinch to zoom"
-            : "Drag to travel · scroll to zoom · select a story"}
+            ? touchPan
+              ? "Drag to pan · pinch to zoom · tap Done moving to scroll"
+              : "Tap an entry for details"
+            : "Click an entry for details · arrow keys to pan when the timeline is focused"}
         </span>
-        <div className="zoom-controls">
-          <button
-            className="icon-button"
-            onClick={() => pan(-1)}
-            aria-label="Pan earlier"
-          >
-            <Icon name="left" size={16} />
-          </button>
-          <button
-            className="icon-button"
-            onClick={() => setRange((current) => zoomRange(current, 2))}
-            aria-label="Zoom out"
-          >
-            <Icon name="minus" size={16} />
-          </button>
-          <button
-            className="reset-view"
-            onClick={() => setRange(INITIAL_RANGE)}
-          >
-            Reset view
-          </button>
-          <button
-            className="icon-button"
-            onClick={() => setRange((current) => zoomRange(current, 0.5))}
-            aria-label="Zoom in"
-          >
-            <Icon name="plus" size={16} />
-          </button>
-          <button
-            className="icon-button"
-            onClick={() => pan(1)}
-            aria-label="Pan later"
-          >
-            <Icon name="right" size={16} />
-          </button>
-        </div>
+        <span aria-live="polite">
+          {inView} of {events.filter((event) => !event.gap).length} dated
+          accounts in view
+        </span>
       </div>
       <p className="range-note">
-        Thicker line segments show the displayed entry’s reported date range.
-        Ranges may describe a period or an uncertain date; open the entry for
-        its dating basis.
+        Thick segments show date ranges. Open an entry for its dating basis.
       </p>
       {cluster && (
         <Modal title="Nearby timeline entries" onClose={() => setCluster(null)}>
           <div className="detail-content">
-            <span className="eyebrow">A CLOSER LOOK</span>
-            <h2>Stories at this point</h2>
-            <p>These entries share a nearby position at this zoom level.</p>
-            {cluster.map((event) => (
-              <a
-                className="list-link"
-                key={event.id}
-                href={`#/timeline/event/${event.id}`}
-                onClick={() => setCluster(null)}
+            <h2>{cluster.length} nearby accounts</h2>
+            <p>Zoom in to separate these dates, or select an entry.</p>
+            <div className="cluster-tools">
+              <SearchField
+                aria-label="Search nearby accounts"
+                placeholder="Find an account…"
+                value={clusterQuery}
+                onChange={(event) => setClusterQuery(event.target.value)}
+              />
+              <Button
+                className="button secondary"
+                onClick={() => {
+                  const dates = fitEventWindow(cluster);
+                  if (dates) setRange(dates);
+                  setCluster(null);
+                }}
               >
-                <span>
-                  <strong>{event.title}</strong>
-                  <small>
-                    {calendarYear(event.year)}
-                    {event.endYear !== undefined
-                      ? ` – ${calendarYear(event.endYear)}`
-                      : ""}{" "}
-                    · {event.kind}
-                  </small>
-                </span>
-                <Icon name="arrow" />
-              </a>
-            ))}
+                Zoom to these dates
+              </Button>
+            </div>
+            {!cluster.some((event) =>
+              event.title.toLowerCase().includes(clusterQuery.toLowerCase()),
+            ) && <p role="status">No nearby account matches that title.</p>}
+            {cluster
+              .filter((event) =>
+                event.title.toLowerCase().includes(clusterQuery.toLowerCase()),
+              )
+              .map((event) => (
+                <a
+                  className="list-link"
+                  key={event.id}
+                  href={timelineEventHref(event.id)}
+                  onClick={() => setCluster(null)}
+                >
+                  <span>
+                    <strong>{event.title}</strong>
+                    <small>
+                      {calendarYear(event.year)}
+                      {event.endYear !== undefined
+                        ? ` – ${calendarYear(event.endYear)}`
+                        : ""}{" "}
+                      · {event.kind}
+                    </small>
+                  </span>
+                  <Icon name="arrow" />
+                </a>
+              ))}
           </div>
         </Modal>
       )}

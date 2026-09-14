@@ -1,4 +1,6 @@
-import type { AtlasEvent } from "./types";
+import { bookExpansionEvents } from "./research/book-expansion.ts";
+import { v04Events } from "./research/v04.ts";
+import type { TimelineEvent } from "./types";
 import { mainstreamEvents } from "./research/mainstream.ts";
 import { bibleEvents } from "./research/bible.ts";
 import { urantiaEvents } from "./research/urantia.ts";
@@ -9,9 +11,14 @@ import { symbolEvents } from "./research/symbols.ts";
 import { worldEvents } from "./research/world-sites.ts";
 import { exodusEvents } from "./research/exodus.ts";
 import { climateEvents } from "./research/climate.ts";
+import { requestedAuthorEvents } from "./research/requested-authors.ts";
+import { norseTerraEvents } from "./research/norse-terra.ts";
+import { hinduEvents } from "./research/hindu.ts";
+import { deepTimeEvents } from "./research/deep-time-expansion.ts";
+import { scienceExpansionEvents } from "./research/science-expansion.ts";
 
 // Astronomical numbering is internal only: year 0 means 1 BCE; no UI displays a year zero.
-export const events: AtlasEvent[] = [
+export const events: TimelineEvent[] = [
   {
     id: "gobekli-tepe",
     trackId: "mainstream",
@@ -212,6 +219,13 @@ export const events: AtlasEvent[] = [
   },
 ];
 events.push(
+  ...bookExpansionEvents,
+  ...scienceExpansionEvents,
+  ...requestedAuthorEvents,
+  ...norseTerraEvents,
+  ...hinduEvents,
+  ...deepTimeEvents,
+  ...v04Events,
   ...mainstreamEvents,
   ...bibleEvents,
   ...urantiaEvents,

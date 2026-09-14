@@ -1,3 +1,5 @@
+import { bookExpansionSources } from "./research/book-expansion.ts";
+import { v04Sources } from "./research/v04.ts";
 import type { Source } from "./types";
 import { mainstreamSources } from "./research/mainstream.ts";
 import { bibleSources } from "./research/bible.ts";
@@ -6,6 +8,10 @@ import { symbolSources } from "./research/symbols.ts";
 import { worldSources } from "./research/world-sites.ts";
 import { exodusSources } from "./research/exodus.ts";
 import { climateSources } from "./research/climate.ts";
+import { requestedAuthorSources } from "./research/requested-authors.ts";
+import { norseTerraSources } from "./research/norse-terra.ts";
+import { hinduSources } from "./research/hindu.ts";
+import { scienceExpansionSources } from "./research/science-expansion.ts";
 
 const commerce = {
   authorStoreUrl: null,
@@ -13,6 +19,7 @@ const commerce = {
   affiliateDisclosure: null,
 };
 export const sources: Source[] = [
+  ...v04Sources,
   {
     id: "unesco-gobekli",
     title: "Göbekli Tepe: World Heritage listing",
@@ -57,6 +64,11 @@ export const sources: Source[] = [
   },
 ];
 sources.push(
+  ...bookExpansionSources,
+  ...scienceExpansionSources,
+  ...requestedAuthorSources,
+  ...norseTerraSources,
+  ...hinduSources,
   ...mainstreamSources,
   ...bibleSources,
   ...alternativeSources,

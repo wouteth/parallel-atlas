@@ -9,6 +9,15 @@ export interface TimelineGroup {
   left: number;
   top: number;
 }
+export const timelineHeight = (
+  count: number,
+  mobile: boolean,
+  populatedCount = count,
+) =>
+  mobile
+    ? 650
+    : Math.max(550, 110 + count * 12 + Math.ceil(populatedCount / 2) * 164);
+export const stripeStart = (count: number) => 42 + Math.ceil(count / 2) * 82;
 export function layoutTimeline(
   tracks: Track[],
   events: DatedEvent[],
@@ -17,16 +26,18 @@ export function layoutTimeline(
   mobile: boolean,
   focusId?: string,
 ): TimelineGroup[] {
-  const height = mobile ? 650 : 550;
+  const populated = populatedTracks(tracks, events, range);
+  const height = timelineHeight(tracks.length, mobile, populated.length);
   const padding = mobile ? 66 : 48;
   const length = (mobile ? height : width) - 2 * padding;
-  const buckets = mobile ? 5 : Math.max(1, Math.floor((width - 24) / 180));
+  const buckets = mobile ? 5 : Math.max(1, Math.floor((width - 24) / 210));
   const cell = mobile ? (height - 100) / buckets : (width - 24) / buckets;
   return tracks.flatMap((track, index) => {
+    const cardIndex = populated.findIndex((item) => item.id === track.id);
     const groups = new Map<number, TimelineGroup>();
     const line = mobile
       ? width / 2 + (index === 0 ? -15 : 15)
-      : 245 + index * 12;
+      : stripeStart(populated.length) + index * 12;
     for (const event of events
       .filter(
         (e) =>
@@ -51,7 +62,12 @@ export function layoutTimeline(
         left: mobile ? (index === 0 ? 12 : width / 2 + 32) : 12 + bucket * cell,
         top: mobile
           ? 40 + bucket * cell
-          : ([42, 112, 182, 335, 405, 475][index] ?? 42),
+          : cardIndex < Math.ceil(populated.length / 2)
+            ? 42 + cardIndex * 82
+            : stripeStart(populated.length) +
+              tracks.length * 12 +
+              20 +
+              (cardIndex - Math.ceil(populated.length / 2)) * 82,
       });
     }
     for (const group of groups.values()) {
@@ -70,3 +86,17 @@ export function layoutTimeline(
     return [...groups.values()];
   });
 }
+
+export const populatedTracks = (
+  tracks: Track[],
+  events: DatedEvent[],
+  range: WindowRange,
+) =>
+  tracks.filter((track) =>
+    events.some(
+      (event) =>
+        event.trackId === track.id &&
+        (event.endYear ?? event.year) >= range[0] &&
+        event.year <= range[1],
+    ),
+  );

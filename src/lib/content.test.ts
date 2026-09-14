@@ -6,6 +6,44 @@ import { glossary } from "../data/glossary.ts";
 import { symbols } from "../data/symbols.ts";
 import { sources } from "../data/sources.ts";
 
+test("requested narrative tracks retain dating and edition limits", () => {
+  for (const track of tracks) {
+    assert.ok(
+      events.some((event) => event.trackId === track.id && !event.gap),
+      track.id,
+    );
+  }
+  for (const trackId of [
+    "hindu",
+    "norse",
+    "tolkien",
+    "jan-val-ellam",
+    "terra-papers",
+  ]) {
+    assert.ok(
+      events
+        .filter((event) => event.trackId === trackId)
+        .every((event) => event.year === null),
+      trackId,
+    );
+  }
+  const event = (id: string) => events.find((item) => item.id === id)!;
+  assert.equal(event("sitchin-workers").year, null);
+  assert.match(event("sitchin-workers").dateBasis, /without a reference year/);
+  assert.equal(event("sitchin-deluge").year, 1 - 11000);
+  assert.equal(event("urantia-life-implantation").year, 1934 - 550000000);
+  assert.equal(event("ra-maldek-destroyed").year, 1981 - 705000);
+  assert.match(
+    event("hindu-brahma-day").dateBasis,
+    /duration, not an absolute/,
+  );
+  assert.match(
+    event("val-ellam-atlantis-cataclysms").citations[0]!.note!,
+    /Official synopsis only/,
+  );
+  assert.match(event("terra-eridu").citations[0]!.note!, /not collated/);
+});
+
 test("seed content has stable unique IDs, valid cross-links, citations, and date provenance", () => {
   for (const collection of [events, tracks, glossary, symbols, sources])
     assert.equal(

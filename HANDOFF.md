@@ -1,46 +1,53 @@
-# Engineer handoff
+# Engineer handoff — 0.4.8
 
-This is a standalone personal project at `D:\Dev\Repositories\parallel-atlas`, owned by `wouteth`. Its private remote is `https://github.com/wouteth/parallel-atlas`. It has no dependencies on Devly packages or services and is outside the Devly worktree.
+Project Timeline is a standalone personal project owned by `wouteth` (`wouteth/parallel-atlas`). Use Node 24 and pnpm 10. The owner authorized a public pre-launch sharing deployment on September 14, 2026: **https://parallel-atlas-ten.vercel.app**. Vercel scope: `wouteths-projects`; project: `parallel-atlas`. No custom domain or GitHub push was used. The production alias was checked without authentication, and live browser checks confirmed timeline rendering, search and source details. Always pass the personal scope explicitly to the CLI. Version 0.4.6 deployed successfully as `dpl_EzPSBh5S2FJVMEGxY94JKGdiVkMb`; the public alias returned HTTP 200 without credentials and the live browser showed 391 records and 97 sources.
 
-The private remote was created on September 13, 2026, and the owner subsequently authorized the initial commit and push. The working copy stays on the D: development drive. The portable ZIP is next to the project at `D:\Dev\Repositories\parallel-atlas.zip`. Future pushes require authorization within the requested task's scope.
+## Current architecture
 
-## Validation completed
+Version 0.4.8 names the application Project Timeline. UI, page titles, documentation, package name, download filename, CSS prefixes and the TimelineEvent type use the new naming. This rename is local and has not been pushed or deployed. Existing GitHub and Vercel addresses remain valid under their current slugs. Historical references to Atlas in Plato's account remain unchanged.
 
-- `pnpm build` passes strict TypeScript checking and creates the production bundle.
-- `pnpm test` covers calendar boundaries, zoom tiers, limits, search, source links, dense layout packing, account isolation, single-use OIDC state, and authenticated API persistence.
-- Research-edition verification: all 13 unit/integration tests and eight browser behavior checks pass. The production JavaScript bundle is approximately 109 KB gzipped. New checks exercise pair selection and sharing, stale comparison links, scientific age anchors, and partially visible date ranges.
-- Browser-checked at 1280px desktop and 390px mobile: six tightly grouped horizontal tracks; two separate vertical tracks with different x-coordinates and colors; track selection changes the correct event list; no horizontal overflow at those sizes; no event-card overlaps in the initial views.
-- Browser-checked event dialogs, source passages, image enlargement, local bookmark persistence across reload, topic search, six-way comparison including absent entries, glossary content, and the Symbol Encyclopedia index.
-- Browser-checked 1, 100, 1,000, and 5,000-year marker states. Annual markers display distinct full elapsed-year counts.
-- No application console errors were observed during those checks. React StrictMode intentionally cancels the first account-state request in development; that canceled request is not an application failure.
+Rename validation: 20 unit tests, all 27 browser checks, strict TypeScript/build and catalog export pass. The 320px browser preview shows the complete Project Timeline header without overflow. The only remaining Atlas references in application source and exported content concern the figure in Plato's text.
 
-## Complete in the scaffold
+Latest deployment: 0.4.7, `dpl_4wpo6CZcPQZNijTJH5mftSbzwXkT`, at the same personal Vercel alias. The public site returned HTTP 200 without credentials and the live browser confirmed the 0.4.7 footer and cross-track search recovery. No GitHub push or custom domain was used.
 
-The requested pages, responsive timeline behavior, typed data structures, source links, local saved items, OIDC account wiring, database adapter, and future-commerce fields are implemented. `README.md` contains the full file tree, routes, startup commands, and configuration instructions. Each site section has its own folder under `src/pages/`.
+Version 0.4.7 improves search discovery across unselected tracks, preserves book-reading context through in-place passage dialogs and retains source search queries in the URL. Book filters have a reset control. The 27-test browser suite passes, including new desktop/mobile search recovery, book dialog focus/scroll/Back/reload checks, source navigation and existing gesture/static checks; all 20 unit tests pass. Book expansion and pagination remain in memory for the mounted page; a full reload preserves filters and the open passage, but resets chapter expansion. No new historical records were added; the full-book review limitations below still apply.
 
-## Configuration and editorial work remaining for launch
+The owner explicitly requested a **read-only static site**. Accounts, OIDC, SQLite, the Node API, bookmarks, favorites, local saved track combinations, publishing controls and the curator assignment script have been removed. Do not reintroduce these features without a new request.
 
-1. Connect the real OIDC provider and run its live login/callback/logout/second-device flow. This requires credentials not supplied with the request. API tests cover local access rules and persistence; they do not prove an external provider's configuration.
-2. Continue the documented research priorities in `docs/research-log.md`. The collection now contains 205 records, 78 sources, 62 glossary topics, and nine sourced symbol contexts. Eighty-three records remain deliberately unplaced. Source-specific limitations appear in their citations and date notes.
-3. Expand the documentary image collection. Two museum objects now have public-domain photographs and credits. Other photos are explicitly illustrative; the stock archaeology image is Roman architecture, not Göbekli Tepe.
-4. Supply the white paper, project team information, and real author-direct / Patreon / merchandise URLs. No payments, deployment, or external publication have been performed.
-5. Configure HTTPS, durable database storage, backups, account data export/deletion, monitoring, and suitable rate limiting before a public launch. The server is one process with SQLite; concurrent library updates currently use last-write-wins replacement.
-6. Test on physical touch devices and with screen readers before launch. Keyboard, reduced-motion, native dialog focus containment, and responsive layouts are implemented. This scaffold has not had a full accessibility audit.
+All historical content is in `src/data/`; edits happen in the repository and take effect on rebuild. Read-only specialist notes are in `src/data/curator-notes.ts`, intentionally empty until real contributions are reviewed. They are included in schema-4 `content/catalog.json`. No user data is exported.
 
-## Natural next extensions
+Visitors can search, filter, select tracks, zoom/pan, compare accounts, view sources/images and download results. View state is in memory and the URL. The app makes no API requests or browser-storage/database writes. Legacy ignored database files and old browser saves are untouched and unused.
 
-- Replace local content modules with an editorial CMS while keeping permanent IDs and typed contracts.
-- `src/lib/layout.ts` now clusters bounded cells separately for each track. Stress tests conserve every visible event across 600 synthetic records, several viewport widths, and multiple date windows. Profile rendering before increasing the collection into many thousands of records.
-- Add structured interval semantics and explicit uncertainty visualization. Reported `endYear` ranges now render for featured entries, clipped to the viewport, and overlapping periods remain in their track’s cluster. The date note distinguishes an occupation period from a construction window; neither is silently treated as a probability distribution.
-- The current range extends to 100,000 BCE, with additional 10,000- and 50,000-year marker steps. Extend it deliberately if older records are added.
-- Replace the library's whole-list PUT with item mutations or version checks for concurrent device editing.
+`pnpm build` emits `dist/`. Vite serves local development/preview only. `vercel.json` configures static hosting with Node 24 and pinned pnpm installation; no environment variables or server functions are required. `pnpm test:browser` builds and serves the actual production output on port 4319, without an API or API mocks.
 
-The ZIP intentionally excludes installed dependencies, generated builds, local databases, credentials, and test-browser state. Install from the included lockfile to reproduce the project.
+## Coverage and usability
 
-## Research-edition additions
+391 records, 97 sources, 71 glossary topics, 14 symbols, twelve tracks, seven connections, three disagreements, five explicit narrative groups and 14 geographic records (five mapped, nine unresolved). Nine symbol contexts have reviewed sources. See [the assessment](docs/v0.4-status.md).
 
-`src/data/research/` separates the curated collections by track. `src/pages/sources/` provides a source index. The catalog supports unaccented multiword search, source and region filters, dated/undated views, ordering, incremental loading, and JSON export. `content/catalog.json` is the portable data handoff, including all reference collections; regenerate it with `pnpm export:data`.
+The 0.4.1 usability work remains: compact navigation; seven dated tracks initially selected; topic shortcuts; Timeline / Account list views; custom BCE/CE windows; searchable clusters; URL-backed exploration and modal reading-position preservation. “Account” in research screens refers to a source narrative. Desktop sideways trackpad scrolling and Shift + wheel pan without zooming; vertical wheel input scrolls the page, and Ctrl/⌘ + wheel zooms. Dragging can start on a card or its image, with a movement threshold to preserve clicks. Navigation hints appear above the canvas, date limits are labeled, and unavailable pan/zoom controls are disabled. Keyboard navigation remains; mobile scrolling is the default, with explicit Move timeline mode for drag/pinch. Custom windows have an eight-year minimum.
 
-Install browser binaries with `pnpm exec playwright install chromium`, then run `pnpm test:browser`. Tests cover catalog browsing, comparison clusters, separate mobile tracks, deep links to older events, source navigation, museum image enlargement, persistent guest bookmarks, shareable account comparisons, and overlapping date ranges. Comparison-page overflow checks cover 320, 390, 768, 1024, and 1280px widths. Four reviewed screenshots are included under `artifacts/`; traces and browser storage are excluded from the ZIP. Live OIDC-provider testing remains unverified because no provider credentials were supplied.
+The map has regional focus and separated controls with short leaders to recorded coordinates. Graph labels stay readable on narrow screens through horizontal scrolling. Layout rules are in `src/ux.css`. Version 0.4.4 replaces custom common controls and overlays with Radix Themes buttons, text fields, dropdown menus and dialogs. Shared control defaults are in `src/components/ui/Controls.tsx`; `src/design-system.css` applies consistent neutral surfaces, typography, sizing and radii to the timeline layouts. Selects, checkboxes, segmented controls, cards, badges, icons, tooltips and expandable sections now use Radix too; timeline cards and D3 gestures retain their specialized layouts. Obsolete control CSS and the second icon library were removed. Dialog focus, keyboard menus, select navigation, track checkboxes, segmented controls and disclosure toggles are covered by browser checks. Removed slogans, empty specialist-note panels, shop placeholders and Google Fonts.
 
-The new `src/pages/compare/` section supports `#/compare?left=<event-id>&right=<event-id>`. Choosing the other side’s current entry swaps the pair. Unknown IDs produce an explanatory message and a valid fallback. `src/lib/compare.ts` suggests records sharing specific topic tags, prioritizing other tracks; it excludes broad source tags and editorial gaps from suggestions. This is topic matching, not a claim of historical equivalence.
+Version 0.4.5 adds 131 records, populates all requested tracks, and documents source/edition limits in the coverage audit. Source-page links include undated tracks, and account cards display internal chronology labels. The expanded graph sizes its bounds from node positions and routes vertical links around intervening nodes.
+
+## Validation
+
+Verified: 20 unit tests, 25 browser checks against the production build, strict TypeScript/build and schema-4 export all pass. Browser checks cover production asset loading, search/filter/navigation, citations/images, desktop/mobile geometry, horizontal and Shift-wheel panning, wheel delta units, card dragging versus clicking, navigation limits, emulated touch pan/pinch and page scrolling, custom dates, view restoration, graph/map interaction, absence of write requests and browser-storage writes, and retired personal routes. The gesture tests were rerun after waiting for font loading to stabilize the page-scroll assertion. Vercel also built successfully and passed the live smoke checks above. No physical touch-device or screen-reader validation is claimed.
+
+## Remaining content and launch work
+
+1. Collate original Terra Papers and Sitchin editions; replace synopsis-level Val Ellam/Tolkien records with reviewed book passages where available; expand beyond the currently indexed texts.
+2. Review speculative graph links, source-count membership and genuinely incompatible claims.
+3. Find the original Carlson recording and distinguish the separate catastrophe chronologies. Ragnarok still has no supported absolute date.
+4. Supply Filipe’s white paper, team/recruitment contact, reviewed specialist contributions and source/support links.
+5. Test physical touch devices and screen readers; confirm public branding and plan the open-source release and full launch.
+
+MIT licensing covers original code; NOTICE preserves third-party rights. Credentials, old data files, dependencies, build output, browser state and temporary downloads remain excluded from source exports. The older external ZIP has not been refreshed.
+
+## Book inventory and remaining review (0.4.6)
+
+Added `#/books`: 98 books/volumes and 2,169 online section links, with query/track/access filters in the URL. All 66 KJV books, 196 Urantia papers plus Foreword, 106 Ra sessions and 126 Vishnu Purana chapters are represented in the inventory. The Poetic Edda now has 35 cited passage records, spanning all pieces in Bellows’s edition. Twelve added Critias records complete the narrative review of the surviving dialogue. Total catalog: 391 records, 97 sources; Norse 58 records, Plato 22. Schema 4 includes the book inventory.
+
+**This is not exhaustive event extraction across all books.** Most sections still require review. Keep metadata inventories, mapped passages and whole-narrative review distinct. Anderson’s Prose Edda and Eggeling’s Satapatha edition have omissions; book cards document them. Skipped books retain their existing synopsis/transcription notes. The readable 12th Planet PDF and scanned Terra Papers PDF require collation; do not count their discovery as full review. Raw downloads are ignored and excluded from deployment.
+
+Validation for 0.4.6: 20 unit tests pass; 24 existing browser checks passed, and the new desktop/mobile book check passed after correcting its test selector (25 total). Strict TypeScript/build and schema-4 export pass. Production alias returned HTTP 200 without authentication; live browser confirmed the Poetic Edda coverage card, 35 sections and the 0.4.6 footer. Deployment: `dpl_EzPSBh5S2FJVMEGxY94JKGdiVkMb`.

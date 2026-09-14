@@ -1,174 +1,103 @@
-# Parallel Atlas
+# Project Timeline — 0.4.8
 
-An exportable, responsive research atlas for comparing accounts of the past. This edition contains 205 records, 78 sources, 62 glossary topics, and 14 symbols with nine sourced cultural contexts. Copy this entire folder to your engineer's machine; it has its own dependency catalog and lockfile and requires nothing from the parent repository.
+A read-only, static research tool for comparing accounts of the past. The collection contains 391 records, 97 sources, 71 glossary topics and 14 symbols with nine sourced cultural contexts. This is a standalone personal project owned by `wouteth`, with repository `wouteth/parallel-atlas` and its own dependency catalog and lockfile.
 
 ## Run locally
 
-Install **Node.js 24+** and **pnpm 10**, then run these commands inside this folder:
+Use **Node.js 24** and **pnpm 10**:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open **http://127.0.0.1:4317**. In a second terminal, start the account API:
+Open **http://127.0.0.1:4317**. No database, credentials, environment variables or application server are required.
 
 ```sh
-pnpm dev:server
-```
-
-The timeline, reference sections, images, and browser bookmarks work without credentials. The API starts without an identity provider and reports that account sign-in is not configured. It never pretends a guest is authenticated.
-
-```sh
-pnpm test       # Date math, content integrity, API access, persistence isolation
-pnpm build      # Strict TypeScript check and production frontend build
-pnpm export:data # Refresh the portable content/catalog.json
+pnpm test         # Date math, content integrity, layout and comparison checks
+pnpm build        # Strict TypeScript check and static production build
+pnpm preview      # Serve dist/ locally on port 4317
+pnpm export:data  # Regenerate the portable content/catalog.json
 pnpm exec playwright install chromium
-pnpm test:browser # Repeatable desktop and mobile behavior checks
+pnpm test:browser # Build, then test dist/ on port 4319 with no backend
 ```
 
-For a production-build smoke check, set `APP_ORIGIN=http://127.0.0.1:4318` in `.env`, run `pnpm build`, then `pnpm start` and open port 4318. `pnpm preview` serves only the frontend build; use `pnpm start` to exercise the API with the build.
+## Read-only behavior
 
-## Included behavior
+Visitors can search, filter, select tracks, change dates, zoom/pan, open citations and images, compare records, explore maps/graphs and download the displayed catalog. These actions change only the current view. URL parameters preserve a view when shared or reloaded.
 
-- Six configurable source tracks: mainstream gray, Bible orange, Urantia blue, Law of One lavender, Plato sage, and alternative research terracotta.
-- Desktop horizontal visualization: six closely grouped stripes with connected event thumbnails. On screens 700px or narrower, exactly two selected tracks appear as distinct vertical lines. Selecting a track already on the other side swaps them.
-- Shared time markers, automatic 1 / 100 / 1,000 / 5,000-year spacing, calendar and elapsed-year labels, pointer-centered wheel zoom, drag pan, pinch zoom, keyboard controls, and reset. Annual detail is available within the most recent 10,000 years. Approximate events retain their uncertainty at every zoom level.
-- Separate, visible mainstream Atlantis gap label: **“Ignored by mainstream history.”** Expanded context explains this as an editorial comparison label, not a claim that scholars never study Atlantis.
-- Search by topic, author, event, description, and citation locator; filter by evidence type, region, source, and track. A comparison grid includes every source track. The complete catalog supports dated/undated views, ordering, incremental loading, and JSON export.
-- A dedicated comparison page places any two entries’ claims, dates, dating basis, and citations side by side. It supports searchable choices, related-account suggestions, and shareable links that preserve the selected pair.
-- Historical periods remain visible when their start falls outside the current window. Thicker segments display the featured entry’s reported range; uncertainty and occupation periods remain distinguished in its dating note.
-- Clickable/tappable photographs, event dialogs, a larger image lightbox, passage citations, and glossary connections in both directions.
-- Glossary with 62 entries, including Atlantis, Plato, Graham Hancock, Randall Carlson, Exodus, African kingdoms, Maya cities, and climate chronology.
-- Separate Symbol Encyclopedia with 14 entries. Each has typed cultural-usage records for culture, era, region, meaning, citations, and research status. Templar and Maltese diagrams are distinct; the Star of David diagram includes the flag's blue stripes.
-- Mission page and a separate white-paper outline, ready for the project's authors.
-- Bookmarks and favorites that persist locally for guests; an OIDC account integration and SQLite-backed libraries for signed-in users.
-- Author-direct purchase fields on every source and nullable Patreon, merchandise, and white-paper URLs. No purchase, subscription, or payment is initiated by this scaffold.
+Search identifies matches on unselected tracks and offers an all-track account list while preserving the selected comparison. Book passages open over the section list, keeping expanded sections, pagination, scroll position and keyboard focus when closed. Source searches are shareable and survive reload and Back navigation.
 
-## Folder structure
+There are no user accounts, login, bookmarks, favorites, saved track combinations, content-editing forms, publishing controls or write APIs. The app does not read or write browser storage or a browser database. Existing browser data from older editions is untouched. The only application fetch loads the bundled geographic basemap; no API is contacted. Source links lead to external sites. Fonts use the system font stack; there are no font-service requests.
+
+Research content and specialist notes are reviewed repository files. Changes reach visitors through a new static build and deployment.
+
+## Included research tools
+
+- Twelve source tracks, with seven dated tracks initially selected. Every requested track has content; Terra Papers and Sitchin retain candidate status. Track colors remain pastel/earth tones.
+- Desktop: tightly grouped horizontal stripes, larger event cards and searchable clusters. At 700px or narrower: two separate vertical tracks; selecting an occupied side swaps them.
+- Shared calendar/elapsed-year markers, automatic granularity, deep time, custom BCE/CE windows, date presets and fit-results. Sideways trackpad scrolling, Shift + wheel and dragging (including from cards) pan the desktop timeline. Vertical scrolling moves the page; Ctrl/⌘ + wheel zooms. Limits are labeled and unavailable controls disabled. Mobile Move timeline enables drag/pinch mode. Keyboard controls remain available.
+- Search by topic, author, event and citation; evidence/region/source/track filters; topic shortcuts; dated and undated account lists; ordering, incremental loading and JSON export. Here “account” means a source narrative, not a user login.
+- Two-record comparisons with passage citations and shareable links. Uncertain dates, narrative chronologies, interval ends and undated records retain explicit provenance.
+- Glossary with 71 topics and a separate 14-entry Symbol Encyclopedia with cultural-usage records.
+- Methodology, mission, What Would Change, research quests, volunteer specialist roles and public changelog.
+- D3 connections graph with numbered similarity points; explicit source counts and reviewed disagreements. Counts are not credibility scores.
+- World map with regional focus, selectable nearby controls anchored to recorded coordinates, and an unlocated list. Modern coastlines are reference geography.
+- Author-direct source links and unconfigured support/white-paper fields. No purchasing or subscription flow is built into this site.
+
+## Project structure
 
 ```text
-parallel-atlas/
-├── README.md
-├── HANDOFF.md
-├── package.json
-├── pnpm-workspace.yaml         # Standalone dependency catalog
-├── pnpm-lock.yaml
-├── tsconfig.json
-├── vite.config.ts
-├── index.html
-├── .env.example
-├── docs/
-│   ├── white-paper.md
-│   ├── research-log.md
-│   └── content-guide.md
-├── content/catalog.json       # Portable event and reference data
-├── tools/export-content.mjs
-├── playwright.config.ts
-├── tests/browser/atlas.spec.ts
-├── public/
-│   ├── favicon.svg
-│   └── images/                 # Bundled photos and original SVG fallback
-├── src/
-│   ├── main.tsx
-│   ├── App.tsx                 # Navigation and page routing
-│   ├── styles.css              # Responsive design and color tokens
-│   ├── components/
-│   │   ├── Timeline.tsx        # SVG scale, gestures, separate tracks
-│   │   ├── EventCard.tsx
-│   │   ├── EventDetail.tsx     # Sources, dates, saves, lightbox
-│   │   ├── Modal.tsx
-│   │   ├── Picture.tsx
-│   │   └── Icon.tsx
-│   ├── pages/
-│   │   ├── timeline/TimelinePage.tsx
-│   │   ├── compare/ComparePage.tsx
-│   │   ├── glossary/GlossaryPage.tsx
-│   │   ├── symbols/SymbolsPage.tsx
-│   │   ├── sources/SourcesPage.tsx
-│   │   ├── mission/MissionPage.tsx
-│   │   └── library/LibraryPage.tsx
-│   ├── data/
-│   │   ├── types.ts            # Public content contracts
-│   │   ├── research/           # Curated collections separated by track
-│   │   ├── images.ts           # Descriptions and image rights
-│   │   ├── tracks.ts
-│   │   ├── events.ts
-│   │   ├── glossary.ts
-│   │   ├── symbols.ts
-│   │   └── sources.ts          # Citations and future commerce
-│   └── lib/
-│       ├── catalog.ts          # Search, ordering, portable export
-│       ├── catalog.test.ts
-│       ├── layout.ts           # Bounded clustering on separate tracks
-│       ├── layout.test.ts
-│       ├── time.ts
-│       ├── time.test.ts
-│       ├── content.test.ts
-│       ├── router.ts
-│       └── library.tsx         # Guest/account persistence boundary
-└── server/
-    ├── index.mjs               # Node HTTP server and startup
-    ├── app.mjs                 # OIDC, API, static production files
-    ├── app.test.mjs
-    ├── store.mjs               # SQLite storage and sessions
-    └── store.test.mjs
+src/
+  data/                  # Events, sources, tracks, glossary and symbols
+    comparative.ts       # Graph, map, groups, quests, disagreements, changelog
+    curator-notes.ts     # Reviewed, attributed specialist contributions
+    research/            # Source-specific research collections
+  components/            # Timeline, event details, images and read-only notes
+  pages/                 # Timeline, comparison and reference pages
+  lib/                   # Date math, layout, search, routing and export
+  styles.css             # Pastel design and common layouts
+  ux.css                 # Research workspace and responsive controls
+public/                  # Bundled images and Natural Earth basemap
+content/catalog.json     # Generated portable catalog, schema 4
+tools/export-content.mjs # Content export command
+tests/browser/           # Static production browser tests
+vercel.json              # Vite static deployment settings
 ```
 
-## Technology choices
+React 19 and TypeScript provide the content model and UI. Radix Themes supplies buttons, text fields, navigation menus and accessible dialogs. Shared wrappers live in `src/components/ui/Controls.tsx`; `src/design-system.css` defines the common typography, spacing and appearance. Selects, checkboxes, segmented controls, cards, badges, icons and tooltips also use Radix. Expandable sections use Radix Collapsible. D3 surfaces keep their specialized interactions. Vite produces `dist/`; D3 supplies timeline scales, graph layout and geographic projection. Tailwind utilities supplement CSS. All content ships as static assets. There is no runtime server or authentication dependency.
 
-React 19 and strict TypeScript provide the component and content model. Vite builds a small client bundle. Native SVG and Pointer Events implement the timeline: there is one numeric scale, reused across every track, with no date-library or visualization-library interpretation of ancient dates. CSS custom properties and media queries implement the visual system; a CSS framework is not required. Node's HTTP and SQLite APIs keep the server portable. `openid-client` handles the OIDC protocol rather than a custom password implementation.
+## Content editing
 
-Dependencies follow the parent repository's catalog versions, copied into this standalone folder. The lockfile makes the exported project reproducible. Dependency modernization can happen independently after handoff.
+Edit `src/data/` and follow [the content guide](docs/content-guide.md). Preserve permanent event IDs, passage-level citations and explicit dating provenance. Regenerate the catalog with `pnpm export:data` after content changes.
 
-The timeline now spans 100,000 BCE to the current year. Additional 10,000- and 50,000-year steps keep the broad view readable. Annual navigation is available at maximum zoom even for older dates; an approximate source remains approximate at any zoom.
+Add genuine specialist contributions to `src/data/curator-notes.ts`, keyed by track ID, with `author`, `body` and `updated` (YYYY-MM-DD). It is intentionally empty until reviewed contributions arrive. Notes appear in event details and on the collaborators page. They are bundled in the static build and catalog export; visitors cannot edit them.
 
-## Routes
+## Routes and sharing
 
-Use `#/compare?left=plato-atlantis&right=ra-atlantis` for a shareable two-account comparison. The Compare navigation link opens an initial pair; selectors can choose any record.
+- `#/timeline`: research workspace; search, filters, track selection and dates live in the query.
+- `#/timeline/event/plato-atlantis`: a source record.
+- `#/timeline?focus=urantia-adam-arrival`: focus a dated event.
+- `#/timeline?tracks=bible,hindu,urantia`: apply a selection; mobile uses its first two tracks.
+- `#/compare?left=plato-atlantis&right=ra-atlantis`: compare two source records.
+- `#/sources`, `#/glossary`, `#/symbols`, `#/map`, `#/connections`: reference tools.
+- `#/mission`, `#/methodology`, `#/quests`, `#/what-would-change`, `#/collaborators`, `#/changelog`: project and research pages.
 
-Hash routes work on ordinary static hosting without rewrite rules:
+The former personal-library, account and saved-combinations routes are retired. Hash routes require no SPA rewrite on the host.
 
-| URL fragment                            | Page                                       |
-| --------------------------------------- | ------------------------------------------ |
-| `#/timeline`                            | Timeline                                   |
-| `#/timeline/event/plato-atlantis`       | Expanded event                             |
-| `#/timeline?topic=atlantis`             | Topic comparison                           |
-| `#/timeline?focus=urantia-adam-arrival` | Focused date window                        |
-| `#/sources`                             | Searchable source index                    |
-| `#/timeline?source=ra`                  | Accounts citing a source                   |
-| `#/glossary` / `#/glossary/atlantis`    | Glossary index / entry                     |
-| `#/symbols` / `#/symbols/star-of-david` | Encyclopedia index / entry                 |
-| `#/mission`                             | Mission, methodology, support placeholders |
-| `#/library`                             | Bookmarks and favorites                    |
-| `#/account`                             | Sign-in status and account actions         |
+## Static deployment on Vercel
 
-## Connect real accounts
+The local 0.4.8 build uses the Project Timeline name. The public deployment remains at 0.4.7 until the next authorized release; repository and hosting addresses below retain their existing slugs.
 
-1. Provision a confidential **OpenID Connect** client with the project's identity provider. Account creation/invitations remain the provider's responsibility; this app has no password or sign-up database.
-2. Register the exact callback `<APP_ORIGIN>/api/auth/callback` and allow the `openid profile` scopes with authorization code + S256 PKCE. The supplied integration uses a client secret at the token endpoint; configure the provider accordingly.
-3. Copy `.env.example` to `.env` and fill `OIDC_ISSUER`, `OIDC_CLIENT_ID`, and `OIDC_CLIENT_SECRET`. `APP_ORIGIN` is the browser-facing origin, without a trailing slash. The issuer must support HTTPS discovery. Production `APP_ORIGIN` must be HTTPS.
-4. Restart the server. The account page now displays **Sign in securely**.
-5. Test the real provider's consent, callback, expiry, logout, and second-device library flow before launch. No live provider credentials were supplied for this scaffold, so that end-to-end integration remains unverified.
+The current pre-launch sharing build is live at **https://parallel-atlas-ten.vercel.app**, in the personal `wouteths-projects` workspace, project `parallel-atlas`. It was deployed directly from the working tree with the owner's authorization on September 14, 2026. The URL opens without a Vercel login. No custom domain or GitHub push was used.
 
-The server uses validated OIDC claims, nonce/state/PKCE, single-use login flows, random HttpOnly session cookies, hashed session tokens at rest, and server-owned per-account scoping. Production cookies use the `__Host-` prefix and `Secure`. Writes require the configured browser origin. Access/refresh tokens are not persisted or returned to React. Logout revokes the local app session; it does not sign the user out of their identity provider.
+For a later owner-authorized deployment from this checkout, use `vercel deploy --prod --scope wouteths-projects --project parallel-atlas --yes`. Always specify the personal scope: the CLI's global default may point to another workspace. `.vercelignore` limits uploads to application build inputs and excludes local data, credentials, tests, research downloads and browser artifacts.
 
-Guest and account libraries are intentionally separate: signing in loads the server's library; signing out restores this browser's guest library. Existing guest bookmarks are retained and are not silently uploaded. The API currently replaces a user's library transactionally, so simultaneous writes from multiple devices are last-write-wins. Add item-level mutations or optimistic concurrency for a production sync experience.
+Commit/push the intended release, then import `wouteth/parallel-atlas` into your personal Vercel project. Use the repository root, Vite preset and Node 24. `vercel.json` pins the install command to pnpm 10.26.2, builds with `npm run build` and publishes only `dist/`. No environment variables or functions are needed. Do not use `pnpm start` as a Vercel runtime command: start/preview are local smoke-test servers only.
 
-| Endpoint                 | Behavior                                                           |
-| ------------------------ | ------------------------------------------------------------------ |
-| `GET /api/me`            | Public account state and sign-in availability                      |
-| `GET /api/auth/login`    | Starts OIDC authorization                                          |
-| `GET /api/auth/callback` | Validates authorization and creates local session                  |
-| `POST /api/auth/logout`  | Revokes local session; requires same-origin request                |
-| `GET /api/library`       | Authenticated user's saved items                                   |
-| `PUT /api/library`       | Validates and atomically replaces authenticated user's saved items |
+Any static host can serve `dist/`. Local browser tests serve the same output with no backend and check for API requests, non-read requests, browser-storage writes and retired editing controls. Vercel Hobby is for personal, non-commercial use; review its terms before monetizing.
 
-## Deployment
-
-`pnpm build` creates `dist/`. `pnpm start` serves the build and API on loopback port 4318. Put it behind an HTTPS reverse proxy forwarding to that port and set `APP_ORIGIN` to the public origin. Preserve the database directory on a durable volume and back it up. A single Node process and SQLite are appropriate for this scaffold; move storage behind a managed database adapter before deploying stateless replicas. The server must ship with `server/`, `src/data/`, production dependencies, and `dist/`, because it validates saved event IDs against the same content used by the client. Node 24 runs the type-stripped seed data directly.
-
-For a static-only deployment, publish `dist/`. Guest features work; the account API must be hosted separately behind the same origin to enable sign-in. No production deployment has been made.
+Exclude `.env`, `.vercel/`, local data, dependencies, builds, browser state and temporary downloads from version control and portable source exports. Any old ignored database files are not loaded, shipped or modified by this edition.
 
 ## Source and image credits
 
@@ -184,4 +113,18 @@ The bundled photographs are illustrative stock, **not photographs or reconstruct
 - `ocean.jpg`: https://images.unsplash.com/photo-1518837695005-2083093ee35b
 - `manuscript.jpg`: https://images.unsplash.com/photo-1507842217343-583bb7270b66 (a library interior)
 
-The favicon and SVG fallback were drawn for this scaffold. Fonts are DM Sans and Instrument Serif, served through Google Fonts with system fallbacks; self-host licensed font files if the project needs fully offline presentation or no third-party font requests.
+The favicon and SVG fallback are project assets. The interface uses system sans-serif fonts without an external font service.
+
+## License
+
+Original project code and documentation use the [MIT license](LICENSE). [NOTICE.md](NOTICE.md) preserves third-party text, image, font and dependency rights. The repository remains private until the owner authorizes publication.
+
+## Related projects
+
+See [the history comparison and agent research notes](docs/related-projects.md) for verified product descriptions and potential references. No external agent service is part of this static app.
+
+## Book coverage inventory (0.4.6)
+
+`src/data/books.ts`, `book-types.ts` and `book-sections.ts` define the finite edition inventory. `#/books` searches books and section headings, filters by track and access, and links both source passages and catalog accounts. Search/filter state is in the URL. It contains 98 books/volumes and 2,169 section references; these are **not 2,169 additional events**. Current catalog: 391 records and 97 sources.
+
+Only the surviving Critias currently has a completed narrative review. Poetic Edda has entries spanning all 35 pieces, with further passages still to index. The larger online texts remain partly extracted. Books without a verified readable edition are skipped and identified, as requested. See the research log for exact edition limits.

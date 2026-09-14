@@ -1,4 +1,4 @@
-import type { AtlasEvent } from "../data/types";
+import type { TimelineEvent } from "../data/types";
 
 const broadTopics = new Set([
   "ancient-civilizations",
@@ -7,16 +7,16 @@ const broadTopics = new Set([
   "law-of-one",
   "plato",
 ]);
-export function sharedTopics(left: AtlasEvent, right: AtlasEvent): string[] {
+export function sharedTopics(left: TimelineEvent, right: TimelineEvent): string[] {
   return left.topicIds.filter(
     (id) => !broadTopics.has(id) && right.topicIds.includes(id),
   );
 }
 export function relatedAccounts(
-  event: AtlasEvent,
-  collection: AtlasEvent[],
+  event: TimelineEvent,
+  collection: TimelineEvent[],
   limit = 4,
-): AtlasEvent[] {
+): TimelineEvent[] {
   return collection
     .filter((candidate) => candidate.id !== event.id && !candidate.gap)
     .map((candidate) => ({

@@ -1,38 +1,42 @@
 {
-  "name": "parallel-atlas",
-  "version": "0.3.0",
+  "name": "project-timeline",
+  "version": "0.4.8",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.26.2",
   "engines": {
-    "node": ">=24"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "dev:server": "node --env-file-if-exists=.env server/index.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "start": "node --env-file-if-exists=.env server/index.mjs",
-    "test": "node --test src/lib/*.test.ts server/*.test.mjs",
-    "test:browser": "playwright test",
+    "start": "vite preview --host 127.0.0.1",
+    "test": "node --test src/lib/*.test.ts",
+    "test:browser": "pnpm build && playwright test",
     "export:data": "node tools/export-content.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@radix-ui/react-collapsible": "^1.1.20",
+    "@radix-ui/react-icons": "^1.3.2",
+    "@radix-ui/themes": "^3.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "d3": "^7.9.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "@hugeicons/react": "catalog:",
-    "@hugeicons/core-free-icons": "catalog:",
-    "openid-client": "^6.8.1"
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@types/d3": "^7.4.3",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
     "prettier": "catalog:",
-    "@playwright/test": "catalog:"
-  }
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "license": "MIT"
 }

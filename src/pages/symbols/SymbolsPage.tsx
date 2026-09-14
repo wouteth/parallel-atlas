@@ -1,3 +1,5 @@
+import { Badge, Card, SegmentedControl } from "@radix-ui/themes";
+import { LinkButton, SearchField } from "../../components/ui/Controls";
 import { useState } from "react";
 import { symbols } from "../../data/symbols";
 import { events } from "../../data/events";
@@ -77,13 +79,13 @@ export function SymbolsPage({ id }: { id?: string }) {
             </span>
             <h1>{entry.title}</h1>
             <p>{entry.description}</p>
-            <span className="tag">
+            <Badge color="gray" variant="soft">
               {entry.historicalUsage.some(
                 (usage) => usage.status === "Reviewed",
               )
                 ? "Sourced cultural contexts"
                 : "Usage research pending"}
-            </span>
+            </Badge>
           </div>
         </div>
         <section className="reference-section">
@@ -116,7 +118,7 @@ export function SymbolsPage({ id }: { id?: string }) {
               </dl>
               <div className="chips">
                 {usage.citations.map((citation, i) => (
-                  <a
+                  <LinkButton
                     key={i}
                     className="chip"
                     href={citation.url}
@@ -124,7 +126,7 @@ export function SymbolsPage({ id }: { id?: string }) {
                     rel="noreferrer"
                   >
                     {citation.passage} <Icon name="arrow" size={13} />
-                  </a>
+                  </LinkButton>
                 ))}
               </div>
             </div>
@@ -160,56 +162,47 @@ export function SymbolsPage({ id }: { id?: string }) {
   return (
     <main className="reference-page">
       <section className="page-intro">
-        <span className="eyebrow">A LANGUAGE BEYOND WORDS</span>
-        <h1>
-          Small forms.
-          <br />
-          <em>Deep histories.</em>
-        </h1>
-        <p>
-          A dedicated encyclopedia of symbols, their forms, and the contexts
-          <br className="desktop-break" /> that give them meaning.
-        </p>
+        <h1>Symbol encyclopedia</h1>
+        <p>Symbols and their uses across cultures and periods.</p>
       </section>
       <div className="reference-tools">
-        <label className="search-box">
-          <Icon name="search" />
-          <input
-            aria-label="Search symbols"
-            placeholder="Find a symbol…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-        <div className="segmented">
+        <SearchField
+          aria-label="Search symbols"
+          placeholder="Find a symbol…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <SegmentedControl.Root
+          aria-label="Symbol family"
+          value={family}
+          onValueChange={setFamily}
+        >
           {["All", "Crosses", "Geometric"].map((value) => (
-            <button
-              key={value}
-              aria-pressed={family === value}
-              onClick={() => setFamily(value)}
-            >
+            <SegmentedControl.Item key={value} value={value}>
               {value}
-            </button>
+            </SegmentedControl.Item>
           ))}
-        </div>
+        </SegmentedControl.Root>
       </div>
       <div className="symbol-grid">
         {results.map((item) => (
-          <a
-            href={`#/symbols/${item.id}`}
-            key={item.id}
-            className="symbol-card"
-          >
-            <div className="symbol-art">
-              <SymbolArt id={item.id} glyph={item.glyph} />
-            </div>
-            <span className="eyebrow">{item.family}</span>
-            <h2>
-              {item.title}
-              <Icon name="arrow" size={16} />
-            </h2>
-            <span className="reference-count">Explore the usage record</span>
-          </a>
+          <Card asChild size="3" key={item.id}>
+            <a
+              href={`#/symbols/${item.id}`}
+              key={item.id}
+              className="symbol-card"
+            >
+              <div className="symbol-art">
+                <SymbolArt id={item.id} glyph={item.glyph} />
+              </div>
+              <span className="eyebrow">{item.family}</span>
+              <h2>
+                {item.title}
+                <Icon name="arrow" size={16} />
+              </h2>
+              <span className="reference-count">Explore the usage record</span>
+            </a>
+          </Card>
         ))}
       </div>
       {!results.length && (

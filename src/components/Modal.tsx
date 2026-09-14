@@ -1,4 +1,6 @@
-import { useEffect, useRef } from "react";
+import { Dialog, VisuallyHidden } from "@radix-ui/themes";
+import { Button } from "./ui/Controls";
+import { useRef } from "react";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon";
 
@@ -13,36 +15,44 @@ export function Modal({
   onClose: () => void;
   wide?: boolean;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    const previous = document.activeElement as HTMLElement | null;
-    dialog?.showModal();
-    return () => {
-      dialog?.close();
-      previous?.focus();
-    };
-  }, []);
+  const previousFocus = useRef(document.activeElement as HTMLElement | null);
+  const closeButton = useRef<HTMLButtonElement>(null);
   return (
-    <dialog
-      ref={ref}
-      className={`modal ${wide ? "wide" : ""}`}
-      aria-label={title}
-      onCancel={onClose}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
+    <Dialog.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
     >
-      <div className="modal-body">
-        <button
-          className="icon-button modal-close"
-          onClick={onClose}
-          aria-label="Close dialog"
-        >
-          <Icon name="close" />
-        </button>
-        {children}
-      </div>
-    </dialog>
+      <Dialog.Content
+        className="pt-dialog"
+        maxWidth={wide ? "1050px" : "640px"}
+        aria-describedby={undefined}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          closeButton.current?.focus({ preventScroll: true });
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          previousFocus.current?.focus({ preventScroll: true });
+        }}
+      >
+        <VisuallyHidden>
+          <Dialog.Title>{title}</Dialog.Title>
+        </VisuallyHidden>
+        <div className="modal-body">
+          <Dialog.Close>
+            <Button
+              ref={closeButton}
+              className="icon-button modal-close"
+              aria-label="Close dialog"
+            >
+              <Icon name="close" />
+            </Button>
+          </Dialog.Close>
+          {children}
+        </div>
+      </Dialog.Content>
+    </Dialog.Root>
   );
 }

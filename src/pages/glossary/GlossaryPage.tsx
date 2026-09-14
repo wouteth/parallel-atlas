@@ -1,3 +1,5 @@
+import { Card, SegmentedControl } from "@radix-ui/themes";
+import { LinkButton, SearchField } from "../../components/ui/Controls";
 import { useState } from "react";
 import { glossary } from "../../data/glossary";
 import { events } from "../../data/events";
@@ -23,19 +25,18 @@ export function GlossaryPage({ id }: { id?: string }) {
           The glossary
         </a>
         <div className="reading-intro">
-          <span className="eyebrow">{entry.category} · FIELD NOTES</span>
+          <span className="eyebrow">{entry.category}</span>
           <h1>{entry.title}</h1>
           <p>{entry.description}</p>
-          <a href={`#/timeline?topic=${entry.id}`} className="button primary">
+          <LinkButton
+            href={`#/timeline?topic=${entry.id}`}
+            className="button primary"
+          >
             Compare across the timeline <Icon name="arrow" />
-          </a>
+          </LinkButton>
         </div>
         <section className="reference-section">
-          <h2>Connected timeline entries</h2>
-          <p className="muted">
-            Links are derived from the same topic references used by the
-            timeline.
-          </p>
+          <h2>Timeline entries</h2>
           <div className="event-grid">
             {events
               .filter((event) => event.topicIds.includes(entry.id))
@@ -45,18 +46,22 @@ export function GlossaryPage({ id }: { id?: string }) {
           </div>
           {!events.some((event) => event.topicIds.includes(entry.id)) && (
             <p className="empty-state">
-              No timeline entries yet. This topic is ready for future research.
+              No timeline entries for this topic yet.
             </p>
           )}
         </section>
         <section className="reference-section">
-          <h2>Keep following the thread</h2>
+          <h2>Related topics and sources</h2>
           <div className="chips">
             {entry.relatedIds.map((related) => (
-              <a className="chip" key={related} href={`#/glossary/${related}`}>
+              <LinkButton
+                className="chip"
+                key={related}
+                href={`#/glossary/${related}`}
+              >
                 {glossary.find((item) => item.id === related)?.title}
                 <Icon name="arrow" size={14} />
-              </a>
+              </LinkButton>
             ))}
           </div>
           {entry.links.map((link) => (
@@ -84,57 +89,51 @@ export function GlossaryPage({ id }: { id?: string }) {
   return (
     <main className="reference-page">
       <section className="page-intro">
-        <span className="eyebrow">THE REFERENCE ROOM</span>
-        <h1>
-          A glossary for
-          <br />
-          <em>the curious mind.</em>
-        </h1>
-        <p>People, places, and ideas. A little context for every thread.</p>
+        <h1>Glossary</h1>
+        <p>People, places, events and terms used in the timeline.</p>
       </section>
       <div className="reference-tools">
-        <label className="search-box">
-          <Icon name="search" />
-          <input
-            aria-label="Search glossary"
-            placeholder="Search the glossary…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-        <div className="segmented">
+        <SearchField
+          aria-label="Search glossary"
+          placeholder="Search the glossary…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <SegmentedControl.Root
+          aria-label="Glossary category"
+          value={category}
+          onValueChange={setCategory}
+        >
           {["All", "Concept", "Place", "Person", "Event"].map((value) => (
-            <button
-              key={value}
-              aria-pressed={category === value}
-              onClick={() => setCategory(value)}
-            >
+            <SegmentedControl.Item key={value} value={value}>
               {value === "Person" ? "People" : value}
-            </button>
+            </SegmentedControl.Item>
           ))}
-        </div>
+        </SegmentedControl.Root>
       </div>
       <div className="glossary-grid">
         {results.map((item) => (
-          <a
-            className="reference-card"
-            key={item.id}
-            href={`#/glossary/${item.id}`}
-          >
-            <span className="eyebrow">{item.category}</span>
-            <h2>
-              {item.title}
-              <Icon name="arrow" />
-            </h2>
-            <p>{item.description}</p>
-            <span className="reference-count">
-              {
-                events.filter((event) => event.topicIds.includes(item.id))
-                  .length
-              }{" "}
-              timeline connections
-            </span>
-          </a>
+          <Card asChild size="3" key={item.id}>
+            <a
+              className="reference-card"
+              key={item.id}
+              href={`#/glossary/${item.id}`}
+            >
+              <span className="eyebrow">{item.category}</span>
+              <h2>
+                {item.title}
+                <Icon name="arrow" />
+              </h2>
+              <p>{item.description}</p>
+              <span className="reference-count">
+                {
+                  events.filter((event) => event.topicIds.includes(item.id))
+                    .length
+                }{" "}
+                timeline connections
+              </span>
+            </a>
+          </Card>
         ))}
       </div>
       {!results.length && (

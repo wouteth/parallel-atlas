@@ -34,7 +34,7 @@ const topics: [string, string, GlossaryEntry["category"], string, string[]][] =
       "dating-methods",
       "Dates, BP, and calendar years",
       "Concept",
-      "BCE/CE dates, scientific BP ages, and a source’s “years ago” cannot be interchanged without a stated convention. The atlas records the basis of each conversion.",
+      "BCE/CE dates, scientific BP ages, and a source’s “years ago” cannot be interchanged without a stated convention. Project Timeline records the basis of each conversion.",
       ["manuscripts"],
     ],
     [

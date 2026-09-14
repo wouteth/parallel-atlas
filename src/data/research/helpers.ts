@@ -1,4 +1,4 @@
-import type { AtlasEvent, Citation, Source } from "../types";
+import type { TimelineEvent, Citation, Source } from "../types";
 
 export const reviewedOn = "2026-09-12";
 export const bce = (year: number) => 1 - year;
@@ -26,11 +26,11 @@ export const source = (
 });
 export function entry(
   input: Pick<
-    AtlasEvent,
+    TimelineEvent,
     "id" | "trackId" | "title" | "year" | "kind" | "summary" | "citations"
   > &
-    Partial<AtlasEvent>,
-): AtlasEvent {
+    Partial<TimelineEvent>,
+): TimelineEvent {
   return {
     approximate: true,
     dateBasis:

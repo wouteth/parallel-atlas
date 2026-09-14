@@ -1,5 +1,4 @@
 import type { Track } from "./types";
-
 export const tracks: Track[] = [
   {
     id: "mainstream",
@@ -42,6 +41,61 @@ export const tracks: Track[] = [
     shortName: "Alternative",
     color: "#be887a",
     description: "Other authors, ideas, and hypotheses",
+  },
+  {
+    id: "tolkien",
+    name: "Tolkien's legendarium",
+    shortName: "Tolkien",
+    color: "#78917a",
+    description: "Authored fiction: The Silmarillion and The Lord of the Rings",
+    status: "Confirmed",
+  },
+  {
+    id: "hindu",
+    name: "Hindu traditions",
+    shortName: "Hindu",
+    color: "#ae927b",
+    description: "Distinct texts, traditions, and cyclical chronologies",
+    status: "Confirmed",
+  },
+  {
+    id: "norse",
+    name: "Norse mythology",
+    shortName: "Norse",
+    color: "#91adb1",
+    description:
+      "Eddic narratives; undated unless a source supplies a chronology",
+    status: "Confirmed",
+  },
+  {
+    id: "jan-val-ellam",
+    name: "Jan Val Ellam",
+    shortName: "Val Ellam",
+    color: "#c3a2b4",
+    description: "Terra Atlantis trilogy · the author’s published synopses",
+    status: "Confirmed",
+    researchNote:
+      "Nine narrative records from the three official synopses. Full chapter texts and calendar dates remain to be reviewed.",
+  },
+  {
+    id: "terra-papers",
+    name: "The Terra Papers",
+    shortName: "Terra Papers",
+    color: "#b6abca",
+    description: "Robert Morning Sky's attributed account",
+    status: "Candidate",
+    researchNote:
+      "Narrative passages from an attributed transcription, with retained page locators. The original edition and 1947 crash dating still require collation.",
+  },
+  {
+    id: "sitchin",
+    name: "Zecharia Sitchin",
+    shortName: "Sitchin",
+    color: "#c9ba78",
+    description: "The author's internal Anunnaki chronology",
+    status: "Candidate",
+    researchNote:
+      "Selected Earth Chronicles chart entries from a labeled transcription. Explicit BCE dates are plotted; unanchored ‘years ago’ claims remain in the account list.",
   },
 ];
 export const trackById = Object.fromEntries(

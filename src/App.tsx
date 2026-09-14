@@ -1,12 +1,22 @@
-import { useEffect, useState } from "react";
+import { Button } from "./components/ui/Controls";
+import { DropdownMenu } from "@radix-ui/themes";
+import {
+  MethodologyPage,
+  QuestsPage,
+  WhatChangesPage,
+  CollaboratorsPage,
+  ChangelogPage,
+} from "./pages/research/ResearchPages";
+import { ConnectionsPage } from "./pages/connections/ConnectionsPage";
+import { MapPage } from "./pages/map/MapPage";
+import { useEffect, useRef, useState } from "react";
 import { useRoute } from "./lib/router";
-import { useLibrary } from "./lib/library";
 import { TimelinePage } from "./pages/timeline/TimelinePage";
 import { GlossaryPage } from "./pages/glossary/GlossaryPage";
 import { SymbolsPage } from "./pages/symbols/SymbolsPage";
 import { MissionPage } from "./pages/mission/MissionPage";
-import { AccountPage, LibraryPage } from "./pages/library/LibraryPage";
 import { SourcesPage } from "./pages/sources/SourcesPage";
+import { BookCoveragePage } from "./pages/sources/BookCoveragePage";
 import { ComparePage } from "./pages/compare/ComparePage";
 import { Icon } from "./components/Icon";
 import { tracks } from "./data/tracks";
@@ -14,15 +24,18 @@ import { tracks } from "./data/tracks";
 export default function App() {
   const route = useRoute();
   const [menu, setMenu] = useState(false);
-  const library = useLibrary();
+  const timelineRoute = useRef("/timeline");
+  if (route.startsWith("/timeline"))
+    timelineRoute.current = `/timeline${route.includes("?") ? "?" + route.split("?")[1] : ""}`;
   const section = route.split("/")[1]?.split("?")[0] ?? "timeline";
   const id = route.split("/")[2]?.split("?")[0];
   useEffect(() => {
     setMenu(false);
-    if (!route.includes("/event/"))
-      window.scrollTo({ top: 0, behavior: "instant" });
-    document.title = `${section === "timeline" ? "Many stories. One shared past." : section.charAt(0).toUpperCase() + section.slice(1)} — Parallel Atlas`;
+    document.title = `${section.charAt(0).toUpperCase() + section.slice(1).replaceAll("-", " ")} — Project Timeline`;
   }, [route, section]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [section]);
   return (
     <>
       <a
@@ -36,60 +49,87 @@ export default function App() {
         Skip to content
       </a>
       <header className="site-header">
-        <a href="#/timeline" className="brand" aria-label="Parallel Atlas home">
+        <a
+          href="#/timeline"
+          className="brand"
+          aria-label="Project Timeline home"
+        >
           <span className="brand-mark">
             {tracks.slice(0, 5).map((track) => (
               <i key={track.id} style={{ background: track.color }} />
             ))}
           </span>
           <span>
-            parallel<span className="brand-second">atlas</span>
-            <sup>↗</sup>
+            Project <span className="brand-second">Timeline</span>
           </span>
         </a>
         <nav className={menu ? "open" : ""} aria-label="Main navigation">
           {[
             ["timeline", "The timeline"],
             ["compare", "Compare"],
-            ["glossary", "Glossary"],
-            ["symbols", "Symbol encyclopedia"],
-            ["sources", "Sources"],
-            ["mission", "Our mission"],
+            ["map", "World map"],
+            ["connections", "Connections"],
           ].map(([path, label]) => (
             <a
               key={path}
-              href={`#/${path}`}
+              href={`#${path === "timeline" ? timelineRoute.current : `/${path}`}`}
               aria-current={section === path ? "page" : undefined}
             >
               {label}
             </a>
           ))}
+          {[
+            {
+              title: "Reference",
+              links: [
+                ["glossary", "Glossary"],
+                ["symbols", "Symbol encyclopedia"],
+                ["sources", "Sources"],
+                ["books", "Book coverage"],
+              ],
+            },
+            {
+              title: "About & research",
+              links: [
+                ["methodology", "Methodology"],
+                ["quests", "Research questions"],
+                ["mission", "Our mission"],
+                ["what-would-change", "What would change"],
+                ["collaborators", "We need collaborators"],
+                ["changelog", "Changelog"],
+              ],
+            },
+          ].map((group) => (
+            <DropdownMenu.Root key={group.title}>
+              <DropdownMenu.Trigger>
+                <Button variant="ghost" className="nav-menu-button">
+                  {group.title} <DropdownMenu.TriggerIcon />
+                </Button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end">
+                {group.links.map(([path, label]) => (
+                  <DropdownMenu.Item asChild key={path}>
+                    <a
+                      href={`#/${path}`}
+                      aria-current={section === path ? "page" : undefined}
+                    >
+                      {label}
+                    </a>
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          ))}
         </nav>
         <div className="header-actions">
-          <a
-            className="library-link"
-            href="#/library"
-            aria-label="My collection"
-          >
-            <Icon name="bookmark" size={17} />
-            <span>My collection</span>
-            {library.items.length > 0 && <b>{library.items.length}</b>}
-          </a>
-          <a
-            className="account-link"
-            href="#/account"
-            aria-label="Your account"
-          >
-            <Icon name="user" size={21} />
-          </a>
-          <button
+          <Button
             className="icon-button mobile-menu"
             onClick={() => setMenu(!menu)}
             aria-label={menu ? "Close navigation" : "Open navigation"}
             aria-expanded={menu}
           >
             <Icon name={menu ? "close" : "menu"} />
-          </button>
+          </Button>
         </div>
       </header>
       <div className="app-content" id="main-content" tabIndex={-1}>
@@ -101,29 +141,40 @@ export default function App() {
           <SymbolsPage id={id} />
         ) : section === "sources" ? (
           <SourcesPage />
+        ) : section === "books" ? (
+          <BookCoveragePage />
         ) : section === "compare" ? (
           <ComparePage route={route} />
         ) : section === "mission" ? (
           <MissionPage />
-        ) : section === "library" ? (
-          <LibraryPage />
-        ) : section === "account" ? (
-          <AccountPage />
+        ) : section === "methodology" ? (
+          <MethodologyPage />
+        ) : section === "connections" ? (
+          <ConnectionsPage />
+        ) : section === "map" ? (
+          <MapPage />
+        ) : section === "quests" ? (
+          <QuestsPage />
+        ) : section === "what-would-change" ? (
+          <WhatChangesPage />
+        ) : section === "collaborators" ? (
+          <CollaboratorsPage />
+        ) : section === "changelog" ? (
+          <ChangelogPage />
         ) : (
           <main className="reference-page">
-            <h1>A thread out of place.</h1>
+            <h1>Page not found</h1>
             <a href="#/timeline">Return to the timeline</a>
           </main>
         )}
       </div>
       <footer className="site-footer">
         <a className="footer-brand" href="#/timeline">
-          parallel atlas <span>↗</span>
+          Project Timeline
         </a>
-        <span>An independent exploration. An open mind.</span>
         <div>
           <a href="#/mission">About the project</a>
-          <span>Research edition · 0.3</span>
+          <span>Pre-launch · 0.4.8</span>
         </div>
       </footer>
     </>

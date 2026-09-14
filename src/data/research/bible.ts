@@ -361,7 +361,7 @@ export const bibleEvents = [
     kind: "Publication",
     region: "British Isles",
     summary:
-      "The English translation supplies the public-domain wording linked from this atlas.",
+      "The English translation supplies the public-domain wording linked from Project Timeline.",
     dateBasis: "The bibliographic record identifies first publication in 1611.",
     topicIds: ["bible", "manuscripts"],
     citations: [

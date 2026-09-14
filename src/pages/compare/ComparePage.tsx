@@ -1,9 +1,19 @@
+import { Badge, Card } from "@radix-ui/themes";
+import {
+  LinkButton,
+  SearchField,
+  SelectField,
+  SelectGroup,
+  SelectItem,
+  Button,
+  Input,
+} from "../../components/ui/Controls";
 import { useEffect, useState } from "react";
 import { events, eventById } from "../../data/events";
 import { glossary } from "../../data/glossary";
 import { sources, sourceById } from "../../data/sources";
 import { tracks, trackById } from "../../data/tracks";
-import type { AtlasEvent } from "../../data/types";
+import type { TimelineEvent } from "../../data/types";
 import { calendarYear, yearsAgo } from "../../lib/time";
 import { searchEvents, sortEvents } from "../../lib/catalog";
 import {
@@ -24,71 +34,78 @@ const searchLabels = {
   ),
 };
 
-function AccountCard({ event }: { event: AtlasEvent }) {
+function AccountCard({ event }: { event: TimelineEvent }) {
   const track = trackById[event.trackId];
   return (
-    <article className="compare-card" style={{ borderTopColor: track.color }}>
-      <span className="track-label">
-        <i style={{ background: track.color }} />
-        {track.name}
-      </span>
-      <h2>{event.title}</h2>
-      <span className="tag">{event.kind}</span>
-      <dl className="compare-facts">
-        <dt>Calendar placement</dt>
-        <dd>
-          {event.dateLabel ??
-            (event.year === null
-              ? "Unplaced account"
-              : `${calendarYear(event.year)}${event.endYear !== undefined ? ` – ${calendarYear(event.endYear)}` : ""}`)}
-          {event.year !== null && (
-            <small>
-              {yearsAgo(event.year)}
-              {event.approximate ? " · approximate" : ""}
-            </small>
+    <Card asChild size="3">
+      <article className="compare-card" style={{ borderTopColor: track.color }}>
+        <span className="track-label">
+          <i style={{ background: track.color }} />
+          {track.name}
+        </span>
+        <h2>{event.title}</h2>
+        <Badge color="gray" variant="soft">
+          {event.kind}
+        </Badge>
+        <dl className="compare-facts">
+          <dt>Calendar placement</dt>
+          <dd>
+            {event.dateLabel ??
+              (event.year === null
+                ? "Unplaced account"
+                : `${calendarYear(event.year)}${event.endYear !== undefined ? ` – ${calendarYear(event.endYear)}` : ""}`)}
+            {event.year !== null && (
+              <small>
+                {yearsAgo(event.year)}
+                {event.approximate ? " · approximate" : ""}
+              </small>
+            )}
+          </dd>
+          <dt>Account</dt>
+          <dd>{event.summary}</dd>
+          <dt>Dating basis</dt>
+          <dd>{event.dateBasis}</dd>
+          {event.region && (
+            <>
+              <dt>Region</dt>
+              <dd>{event.region}</dd>
+            </>
           )}
-        </dd>
-        <dt>Account</dt>
-        <dd>{event.summary}</dd>
-        <dt>Dating basis</dt>
-        <dd>{event.dateBasis}</dd>
-        {event.region && (
-          <>
-            <dt>Region</dt>
-            <dd>{event.region}</dd>
-          </>
-        )}
-      </dl>
-      {event.gap && <aside className="notice">{event.gap.explanation}</aside>}
-      <h3>Passages & evidence</h3>
-      <div className="compare-citations">
-        {event.citations.map((citation, index) => (
-          <div className="citation" key={`${citation.sourceId}-${index}`}>
-            <div>
-              <a href={citation.url} target="_blank" rel="noreferrer">
-                {sourceById[citation.sourceId]?.title ?? citation.sourceId}{" "}
-                <Icon name="arrow" size={14} />
-              </a>
-              <p>{citation.passage}</p>
-              {citation.note && <small>{citation.note}</small>}
-              {citation.checkedOn && (
-                <small>Attribution checked {citation.checkedOn}</small>
-              )}
+        </dl>
+        {event.gap && <aside className="notice">{event.gap.explanation}</aside>}
+        <h3>Passages & evidence</h3>
+        <div className="compare-citations">
+          {event.citations.map((citation, index) => (
+            <div className="citation" key={`${citation.sourceId}-${index}`}>
+              <div>
+                <a href={citation.url} target="_blank" rel="noreferrer">
+                  {sourceById[citation.sourceId]?.title ?? citation.sourceId}{" "}
+                  <Icon name="arrow" size={14} />
+                </a>
+                <p>{citation.passage}</p>
+                {citation.note && <small>{citation.note}</small>}
+                {citation.checkedOn && (
+                  <small>Attribution checked {citation.checkedOn}</small>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-      <div className="chips">
-        {event.topicIds.map((id) => (
-          <a className="chip" key={id} href={`#/glossary/${id}`}>
-            {labels[id] ?? id}
-          </a>
-        ))}
-      </div>
-      <a className="button secondary" href={`#/timeline/event/${event.id}`}>
-        Open entry & save <Icon name="arrow" size={15} />
-      </a>
-    </article>
+          ))}
+        </div>
+        <div className="chips">
+          {event.topicIds.map((id) => (
+            <LinkButton className="chip" key={id} href={`#/glossary/${id}`}>
+              {labels[id] ?? id}
+            </LinkButton>
+          ))}
+        </div>
+        <LinkButton
+          className="button secondary"
+          href={`#/timeline/event/${event.id}`}
+        >
+          Open entry <Icon name="arrow" size={15} />
+        </LinkButton>
+      </article>
+    </Card>
   );
 }
 
@@ -130,16 +147,10 @@ export function ComparePage({ route }: { route: string }) {
   return (
     <main className="reference-page compare-page">
       <section className="page-intro">
-        <span className="eyebrow">READ ACROSS THE TRACKS</span>
-        <h1>
-          Two accounts.
-          <br />
-          <em>Room to compare.</em>
-        </h1>
+        <h1>Compare accounts</h1>
         <p>
-          Place the dates, claims, and original passages side by side. Shared
-          topics suggest a connection; they do not establish that two accounts
-          describe the same event.
+          Compare two accounts and their citations. A shared topic does not mean
+          they describe the same event.
         </p>
       </section>
       {invalid && (
@@ -149,16 +160,13 @@ export function ComparePage({ route }: { route: string }) {
         </p>
       )}
       <div className="reference-tools">
-        <label className="search-box">
-          <Icon name="search" />
-          <input
-            aria-label="Find accounts to compare"
-            placeholder="Narrow the choices by topic, source, or place…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-        <button
+        <SearchField
+          aria-label="Find accounts to compare"
+          placeholder="Narrow the choices by topic, source, or place…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <Button
           className="button secondary"
           onClick={async () => {
             try {
@@ -170,7 +178,7 @@ export function ComparePage({ route }: { route: string }) {
           }}
         >
           {copied ? "Comparison link copied" : "Copy comparison link"}
-        </button>
+        </Button>
       </div>
       <p className="muted" aria-live="polite">
         {options.length} matching entries. Your current pair stays selected
@@ -179,7 +187,7 @@ export function ComparePage({ route }: { route: string }) {
       {copyFailed && (
         <label className="share-fallback">
           Copy this comparison address
-          <input
+          <Input
             readOnly
             value={shareUrl}
             onFocus={(event) => event.currentTarget.select()}
@@ -197,23 +205,23 @@ export function ComparePage({ route }: { route: string }) {
           return (
             <label key={side}>
               <span>Account {index + 1}</span>
-              <select
+              <SelectField
                 aria-label={`Account ${index + 1}`}
                 value={current.id}
-                onChange={(event) => select(side, event.target.value)}
+                onValueChange={(value) => select(side, value)}
               >
                 {tracks.map((track) => (
-                  <optgroup key={track.id} label={track.name}>
+                  <SelectGroup key={track.id} label={track.name}>
                     {selectedOptions
                       .filter((event) => event.trackId === track.id)
                       .map((event) => (
-                        <option key={event.id} value={event.id}>
+                        <SelectItem key={event.id} value={event.id}>
                           {event.title}
-                        </option>
+                        </SelectItem>
                       ))}
-                  </optgroup>
+                  </SelectGroup>
                 ))}
-              </select>
+              </SelectField>
             </label>
           );
         })}
@@ -223,9 +231,9 @@ export function ComparePage({ route }: { route: string }) {
           {common.length ? "Shared topics" : "No specific topic tags in common"}
         </span>
         {common.map((id) => (
-          <a className="chip" href={`#/glossary/${id}`} key={id}>
+          <LinkButton className="chip" href={`#/glossary/${id}`} key={id}>
             {labels[id] ?? id}
-          </a>
+          </LinkButton>
         ))}
       </div>
       <div className="compare-grid">

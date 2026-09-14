@@ -1,12 +1,16 @@
+import { Badge } from "@radix-ui/themes";
+import { LinkButton } from "./ui/Controls";
+import { timelineFocusHref } from "../lib/router";
+import { SourceCount } from "./SourceCount";
+import { CuratorNote } from "./CuratorNote";
 import { useState } from "react";
-import type { AtlasEvent } from "../data/types";
+import type { TimelineEvent } from "../data/types";
 import { trackById } from "../data/tracks";
 import { imageInfo } from "../data/images";
 import { sourceById } from "../data/sources";
 import { glossary } from "../data/glossary";
 import { symbols } from "../data/symbols";
 import { calendarYear, yearsAgo } from "../lib/time";
-import { useLibrary } from "../lib/library";
 import { Modal } from "./Modal";
 import { Picture } from "./Picture";
 import { Icon } from "./Icon";
@@ -17,11 +21,10 @@ export function EventDetail({
   event,
   onClose,
 }: {
-  event: AtlasEvent;
+  event: TimelineEvent;
   onClose: () => void;
 }) {
   const [enlarged, setEnlarged] = useState(false);
-  const library = useLibrary();
   const track = trackById[event.trackId];
   const media = imageInfo[event.image];
   const related = relatedAccounts(event, events);
@@ -42,7 +45,9 @@ export function EventDetail({
           <span className="track-label">
             <i style={{ background: track.color }} />
             {track.name}
-            <span className="tag">{event.kind}</span>
+            <Badge color="gray" variant="soft">
+              {event.kind}
+            </Badge>
           </span>
           <h2>{event.title}</h2>
           <p className="event-date">
@@ -57,47 +62,21 @@ export function EventDetail({
           {event.gap && (
             <aside className="notice">{event.gap.explanation}</aside>
           )}
-          <div className="save-actions">
-            {(["bookmark", "favorite"] as const).map((kind) => (
-              <button
-                key={kind}
-                className="button secondary"
-                disabled={library.busy}
-                aria-pressed={library.items.some(
-                  (item) => item.eventId === event.id && item.kind === kind,
-                )}
-                onClick={() => void library.toggle(event.id, kind)}
-              >
-                <Icon name={kind === "bookmark" ? "bookmark" : "heart"} />
-                {library.items.some(
-                  (item) => item.eventId === event.id && item.kind === kind,
-                )
-                  ? "Saved"
-                  : kind === "bookmark"
-                    ? "Bookmark"
-                    : "Favorite"}
-              </button>
-            ))}
-          </div>
-          {library.error && (
-            <p role="status" className="notice">
-              {library.error}
-            </p>
-          )}
           {event.year !== null && (
-            <a className="chip" href={`#/timeline?focus=${event.id}`}>
+            <LinkButton className="chip" href={timelineFocusHref(event.id)}>
               Locate on the timeline <Icon name="arrow" size={13} />
-            </a>
+            </LinkButton>
           )}
-          <h3>How this date is placed</h3>
+          <SourceCount event={event} />
+          <h3>Dating basis</h3>
           <p className="muted">{event.dateBasis}</p>
-          <a
+          <LinkButton
             className="button secondary"
             href={`#${comparisonPath(event.id, related[0]?.id)}`}
           >
             Compare this account <Icon name="arrow" size={15} />
-          </a>
-          <h3>Go to the source</h3>
+          </LinkButton>
+          <h3>Sources</h3>
           <div className="citations">
             {event.citations.map((citation, index) => (
               <div className="citation" key={`${citation.sourceId}-${index}`}>
@@ -112,10 +91,7 @@ export function EventDetail({
                   <p>{citation.passage}</p>
                   {citation.note && <small>{citation.note}</small>}
                   {citation.checkedOn && (
-                    <small>
-                      Source checked {citation.checkedOn} · this verifies the
-                      attribution, not the historical claim.
-                    </small>
+                    <small>Attribution checked {citation.checkedOn}</small>
                   )}
                   {sourceById[citation.sourceId]?.commerce.authorStoreUrl && (
                     <a
@@ -132,7 +108,7 @@ export function EventDetail({
               </div>
             ))}
           </div>
-          <h3>Explore the connections</h3>
+          <h3>Related entries and topics</h3>
           {related.length > 0 && (
             <div className="related-accounts">
               {related.map((account) => (
@@ -154,17 +130,18 @@ export function EventDetail({
           )}
           <div className="chips">
             {event.topicIds.map((id) => (
-              <a className="chip" key={id} href={`#/glossary/${id}`}>
+              <LinkButton className="chip" key={id} href={`#/glossary/${id}`}>
                 {glossary.find((entry) => entry.id === id)?.title ?? id}
                 <Icon name="arrow" size={13} />
-              </a>
+              </LinkButton>
             ))}
             {event.symbolIds.map((id) => (
-              <a className="chip" key={id} href={`#/symbols/${id}`}>
+              <LinkButton className="chip" key={id} href={`#/symbols/${id}`}>
                 {symbols.find((entry) => entry.id === id)?.title ?? id}
-              </a>
+              </LinkButton>
             ))}
           </div>
+          <CuratorNote trackId={event.trackId} />
           <p className="fine-print">{media.credit}</p>
         </div>
       </Modal>

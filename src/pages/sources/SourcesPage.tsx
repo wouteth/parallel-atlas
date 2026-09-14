@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { Card } from "@radix-ui/themes";
+import { LinkButton, SearchField, Button } from "../../components/ui/Controls";
+import { useRoute, replaceRoute } from "../../lib/router";
 import { sources } from "../../data/sources";
 import { events } from "../../data/events";
 import { tracks } from "../../data/tracks";
@@ -7,7 +9,13 @@ import { normalizeSearch, downloadCatalog } from "../../lib/catalog";
 import { Icon } from "../../components/Icon";
 
 export function SourcesPage() {
-  const [query, setQuery] = useState("");
+  const route = useRoute();
+  const query = new URLSearchParams(route.split("?")[1]).get("q") ?? "";
+  const setQuery = (value: string) => {
+    const params = new URLSearchParams();
+    if (value) params.set("q", value);
+    replaceRoute(`/sources${params.size ? `?${params}` : ""}`);
+  };
   const results = sources
     .filter((source) =>
       normalizeSearch(`${source.title} ${source.author}`).includes(
@@ -21,17 +29,9 @@ export function SourcesPage() {
   return (
     <main className="reference-page">
       <section className="page-intro">
-        <span className="eyebrow">FOLLOW THE FOOTNOTES</span>
-        <h1>
-          An atlas built
-          <br />
-          <em>from its sources.</em>
-        </h1>
-        <p>
-          Primary texts, institutional records, and authors’ own accounts.
-          <br className="desktop-break" /> Open a source, then explore the
-          entries connected to it.
-        </p>
+        <h1>Sources</h1>
+        <p>Books, papers and records cited in the timeline.</p>
+        <LinkButton href="#/books">View book coverage</LinkButton>
       </section>
       <div className="collection-stats">
         {[
@@ -50,60 +50,66 @@ export function SourcesPage() {
         ))}
       </div>
       <div className="reference-tools">
-        <label className="search-box">
-          <Icon name="search" />
-          <input
-            aria-label="Search sources"
-            placeholder="Find an author, book, or institution…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-        <button
+        <SearchField
+          aria-label="Search sources"
+          placeholder="Find an author, book, or institution…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        {query && <Button onClick={() => setQuery("")}>Clear search</Button>}
+        <Button
           className="button secondary"
           onClick={() => downloadCatalog(events)}
         >
           Export all event data
-        </button>
+        </Button>
       </div>
+      <p role="status">
+        {results.length} matching source{results.length === 1 ? "" : "s"}
+      </p>
       <div className="source-grid">
         {results.map((source) => {
           const linked = events.filter((event) =>
             event.citations.some((c) => c.sourceId === source.id),
           );
           return (
-            <article key={source.id} className="source-card">
-              <span className="eyebrow">{source.author}</span>
-              <h2>{source.title}</h2>
-              <div className="chips">
-                {tracks
-                  .filter((track) =>
-                    linked.some((event) => event.trackId === track.id),
-                  )
-                  .map((track) => (
-                    <span className="track-label" key={track.id}>
-                      <i style={{ background: track.color }} />
-                      {track.shortName}
-                    </span>
-                  ))}
-              </div>
-              <p>
-                {linked.length} linked account{linked.length === 1 ? "" : "s"}
-              </p>
-              <div className="source-actions">
-                <a
-                  className="text-button"
-                  href={source.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Read the source <Icon name="arrow" size={14} />
-                </a>
-                <a className="chip" href={`#/timeline?source=${source.id}`}>
-                  Explore entries
-                </a>
-              </div>
-            </article>
+            <Card asChild size="3" key={source.id}>
+              <article key={source.id} className="source-card">
+                <span className="eyebrow">{source.author}</span>
+                <h2>{source.title}</h2>
+                <div className="chips">
+                  {tracks
+                    .filter((track) =>
+                      linked.some((event) => event.trackId === track.id),
+                    )
+                    .map((track) => (
+                      <span className="track-label" key={track.id}>
+                        <i style={{ background: track.color }} />
+                        {track.shortName}
+                      </span>
+                    ))}
+                </div>
+                <p>
+                  {linked.length} linked account{linked.length === 1 ? "" : "s"}
+                </p>
+                <div className="source-actions">
+                  <a
+                    className="text-button"
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Read the source <Icon name="arrow" size={14} />
+                  </a>
+                  <LinkButton
+                    className="chip"
+                    href={`#/timeline?view=accounts&scope=all&source=${source.id}&tracks=${[...new Set(linked.map((event) => event.trackId))].join(",")}`}
+                  >
+                    Explore entries
+                  </LinkButton>
+                </div>
+              </article>
+            </Card>
           );
         })}
       </div>
@@ -119,13 +125,6 @@ export function SourcesPage() {
           explicitly limited to a synopsis, search excerpt, or episode
           description. Undated records preserve those limits instead of
           assigning a speculative year.
-        </p>
-        <p>
-          The collection is curated and expandable. Coverage is uneven, images
-          are illustrative, and the next research priorities include more
-          African and American records, biblical chronology studies,
-          artifact-specific cross histories, and timestamped Carlson
-          transcripts.
         </p>
       </aside>
     </main>

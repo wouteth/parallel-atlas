@@ -1,11 +1,11 @@
-import type { AtlasEvent } from "../data/types";
+import type { TimelineEvent } from "../data/types";
 
 export function Picture({
   kind,
   className = "",
   alt = "",
 }: {
-  kind: AtlasEvent["image"];
+  kind: TimelineEvent["image"];
   className?: string;
   alt?: string;
 }) {

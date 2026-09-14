@@ -1,6 +1,6 @@
-import type { AtlasEvent } from "./types";
+import type { TimelineEvent } from "./types";
 export const imageInfo: Record<
-  AtlasEvent["image"],
+  TimelineEvent["image"],
   { alt: string; credit: string; documentary: boolean }
 > = {
   ruins: {

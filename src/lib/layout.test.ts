@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { layoutTimeline } from "./layout.ts";
+import { layoutTimeline, timelineHeight } from "./layout.ts";
 import { events } from "../data/events.ts";
 import { isDatedEvent } from "../data/types.ts";
 import { tracks } from "../data/tracks.ts";
@@ -38,12 +38,15 @@ test("dense layouts conserve every in-range event without overlapping or overflo
         const boxes = groups.map((g) => ({
           x: g.left,
           y: g.top,
-          w: mobile ? width / 2 - 44 : 156,
-          h: mobile ? 76 : 60,
+          w: mobile ? width / 2 - 44 : 188,
+          h: mobile ? 92 : 74,
         }));
         for (const box of boxes) {
           assert.ok(box.x >= 0 && box.x + box.w <= width);
-          assert.ok(box.y >= 0 && box.y + box.h <= (mobile ? 650 : 550));
+          assert.ok(
+            box.y >= 0 &&
+              box.y + box.h <= timelineHeight(selected.length, mobile),
+          );
         }
         for (let i = 0; i < boxes.length; i++)
           for (let j = i + 1; j < boxes.length; j++) {

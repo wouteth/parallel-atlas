@@ -1,14 +1,14 @@
-# Parallel Atlas — white paper outline
+# Project Timeline — white paper outline
 
-Status: outline for the project team. This is not a published white paper.
+Status: outline awaiting Filipe’s separate white paper. This is not a published white paper.
 
 ## 1. Who we are
 
 Add the founders, contributors, motivations, and relevant experience.
 
-## 2. The question we are exploring
+## 2. The project’s mission
 
-Explain the intended scope of the atlas, who it serves, and what comparing different kinds of accounts can and cannot establish.
+The stated mission is to help demonstrate that humanity is not the first civilization on Earth. Explain the intended scope, long-term student/research audience and what comparisons can and cannot establish. The mission is a position; it does not predetermine findings under the methodology.
 
 ## 3. Editorial methodology
 
@@ -30,9 +30,9 @@ Describe the review process, public corrections, version history, and how resear
 
 Describe author-direct book sales, future merchandise, Patreon, affiliate disclosure, and how editorial decisions remain independent of commercial interests.
 
-## 8. Privacy and accounts
+## 8. Read-only access
 
-Document what is stored, why, deletion/export procedures, the identity provider, retention, and guest/account library behavior.
+The current site has no accounts, saved personal data or content-editing workflows. Search and filter state appear only in the current view and shareable URLs. Document any external resources and hosting logs before public launch.
 
 ## 9. Roadmap and references
 

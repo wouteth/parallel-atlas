@@ -29,9 +29,9 @@ test("zoom automatically changes all four required granularities", () => {
   assert.ok(timeMarkers([-20000, -19990], 1000).length > 0);
   assert.ok(timeMarkers(FULL_RANGE, 1000).length <= 16);
 });
-test("zoom preserves pointer anchor and clamps to the atlas bounds", () => {
+test("zoom preserves pointer anchor and clamps to the timeline bounds", () => {
   assert.deepEqual(zoomRange([0, 100], 0.5, 0.25), [12.5, 62.5]);
-  assert.deepEqual(clampRange([-1e8, 1e8]), FULL_RANGE);
+  assert.deepEqual(clampRange([-1e15, 1e15]), FULL_RANGE);
   assert.equal(
     zoomRange([100, 110], 0.01)[1] - zoomRange([100, 110], 0.01)[0],
     8,

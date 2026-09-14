@@ -1,3 +1,4 @@
+import { chooseOption } from "./helpers";
 import { test, expect } from "@playwright/test";
 
 test("comparison links preserve distinct accounts, citations, and filtered choices", async ({
@@ -9,12 +10,8 @@ test("comparison links preserve distinct accounts, citations, and filtered choic
   await page.goto("/#/timeline/event/plato-atlantis");
   await page.getByRole("link", { name: "Compare this account" }).click();
   await expect(page.locator(".compare-card")).toHaveCount(2);
-  await page
-    .getByLabel("Account 1", { exact: true })
-    .selectOption("younger-dryas-gicc05");
-  await page
-    .getByLabel("Account 2", { exact: true })
-    .selectOption("impact-hypothesis-2007");
+  await chooseOption(page, "Account 1", "younger-dryas-gicc05");
+  await chooseOption(page, "Account 2", "impact-hypothesis-2007");
   await expect(page.locator(".compare-card").first()).toContainText(
     "10,897 BCE",
   );
@@ -33,26 +30,25 @@ test("comparison links preserve distinct accounts, citations, and filtered choic
   );
   await page.goto(copied);
   await page.reload();
-  await expect(page.getByLabel("Account 2", { exact: true })).toHaveValue(
+  await expect(page.getByLabel("Account 2", { exact: true })).toHaveAttribute(
+    "data-value",
     "impact-hypothesis-2007",
   );
   await page
     .getByRole("textbox", { name: "Find accounts to compare" })
     .fill("Exodus");
-  await expect(page.getByLabel("Account 1", { exact: true })).toHaveValue(
+  await expect(page.getByLabel("Account 1", { exact: true })).toHaveAttribute(
+    "data-value",
     "younger-dryas-gicc05",
   );
-  await page
-    .getByLabel("Account 1", { exact: true })
-    .selectOption("sea-crossing");
+  await chooseOption(page, "Account 1", "sea-crossing");
   await expect(page.locator(".compare-card").first()).toContainText("Unplaced");
   await page
     .getByRole("textbox", { name: "Find accounts to compare" })
     .fill("");
-  await page
-    .getByLabel("Account 2", { exact: true })
-    .selectOption("sea-crossing");
-  await expect(page.getByLabel("Account 1", { exact: true })).toHaveValue(
+  await chooseOption(page, "Account 2", "sea-crossing");
+  await expect(page.getByLabel("Account 1", { exact: true })).toHaveAttribute(
+    "data-value",
     "impact-hypothesis-2007",
   );
   await page.goto("/#/compare?left=plato-atlantis&right=ra-atlantis");
