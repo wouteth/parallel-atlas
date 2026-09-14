@@ -1,6 +1,16 @@
 # Project Timeline — 0.4.8
 
-A read-only, static research tool for comparing accounts of the past. The collection contains 391 records, 97 sources, 71 glossary topics and 14 symbols with nine sourced cultural contexts. This is a standalone personal project owned by `wouteth`, with repository `wouteth/parallel-atlas` and its own dependency catalog and lockfile.
+A read-only, static research tool for comparing accounts of the past. The collection contains 391 records, 97 sources, 71 glossary topics and 14 symbols with nine sourced cultural contexts. This is a standalone personal project owned by `wouteth`, with repository `wouteth/project-timeline` and its own dependency catalog and lockfile.
+
+[Try the public demo](https://project-timeline-wouteth.vercel.app) · [Contribute](CONTRIBUTING.md) · [Roadmap](ROADMAP.md) · [Get help](SUPPORT.md)
+
+## Project goals
+
+Project Timeline makes accounts of the past easier to compare while preserving source types, passage citations and dating uncertainty. Its founding interest in earlier-civilization claims is explained on the mission page; inclusion does not establish a narrative's historicity or give different sources equal evidential support.
+
+## Contribute
+
+Sourced corrections, reproducible bug reports, accessibility checks, documentary images and focused code improvements are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), use the [issue chooser](https://github.com/wouteth/project-timeline/issues/new/choose), and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report vulnerabilities through [SECURITY.md](SECURITY.md).
 
 ## Run locally
 
@@ -87,13 +97,11 @@ The former personal-library, account and saved-combinations routes are retired. 
 
 ## Static deployment on Vercel
 
-The local 0.4.8 build uses the Project Timeline name. The public deployment remains at 0.4.7 until the next authorized release; repository and hosting addresses below retain their existing slugs.
+The Project Timeline 0.4.8 static build is published at **https://project-timeline-wouteth.vercel.app**, in the personal `wouteths-projects` workspace, project `project-timeline`. The owner authorized the repository rename, source publication and deployment on September 14, 2026. The demo requires no account or custom domain.
 
-The current pre-launch sharing build is live at **https://parallel-atlas-ten.vercel.app**, in the personal `wouteths-projects` workspace, project `parallel-atlas`. It was deployed directly from the working tree with the owner's authorization on September 14, 2026. The URL opens without a Vercel login. No custom domain or GitHub push was used.
+For a later owner-authorized deployment from this checkout, use `vercel deploy --prod --scope wouteths-projects --project project-timeline --yes`. Always specify the personal scope: the CLI's global default may point to another workspace. `.vercelignore` limits uploads to application build inputs and excludes local data, credentials, tests, research downloads and browser artifacts.
 
-For a later owner-authorized deployment from this checkout, use `vercel deploy --prod --scope wouteths-projects --project parallel-atlas --yes`. Always specify the personal scope: the CLI's global default may point to another workspace. `.vercelignore` limits uploads to application build inputs and excludes local data, credentials, tests, research downloads and browser artifacts.
-
-Commit/push the intended release, then import `wouteth/parallel-atlas` into your personal Vercel project. Use the repository root, Vite preset and Node 24. `vercel.json` pins the install command to pnpm 10.26.2, builds with `npm run build` and publishes only `dist/`. No environment variables or functions are needed. Do not use `pnpm start` as a Vercel runtime command: start/preview are local smoke-test servers only.
+The current project uses direct CLI deployments. To enable automatic deployments later, connect `wouteth/project-timeline` to the existing personal Vercel project. Use the repository root, Vite preset and Node 24. `vercel.json` pins the install command to pnpm 10.26.2, builds with `npm run build` and publishes only `dist/`. No environment variables or functions are needed. Do not use `pnpm start` as a Vercel runtime command: start/preview are local smoke-test servers only.
 
 Any static host can serve `dist/`. Local browser tests serve the same output with no backend and check for API requests, non-read requests, browser-storage writes and retired editing controls. Vercel Hobby is for personal, non-commercial use; review its terms before monetizing.
 
@@ -117,7 +125,7 @@ The favicon and SVG fallback are project assets. The interface uses system sans-
 
 ## License
 
-Original project code and documentation use the [MIT license](LICENSE). [NOTICE.md](NOTICE.md) preserves third-party text, image, font and dependency rights. The repository remains private until the owner authorizes publication.
+Original project code and documentation use the [MIT license](LICENSE). [NOTICE.md](NOTICE.md) preserves third-party text, image, font and dependency rights. The repository is public.
 
 ## Related projects
 
