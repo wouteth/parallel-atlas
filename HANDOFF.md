@@ -4,11 +4,11 @@ Project Timeline is a standalone public MIT-licensed project owned by `wouteth`:
 
 ## Current architecture
 
-Version 0.4.8 names the application Project Timeline. UI, page titles, documentation, package name, download filename, CSS prefixes and the TimelineEvent type use the new naming. The application and external projects use Project Timeline; legacy public links are retained for compatibility. Historical references to Atlas in Plato's account remain unchanged.
+Version 0.4.8 names the application Project Timeline. UI, page titles, documentation, package name, download filename, CSS prefixes and the TimelineEvent type use the new naming. The application and external projects use Project Timeline. The owner requested removal of the old Vercel addresses on September 14, 2026; both legacy public aliases have been removed. Historical references to Atlas in Plato's account remain unchanged.
 
 Rename validation: 20 unit tests, all 27 browser checks, strict TypeScript/build and catalog export pass. The 320px browser preview shows the complete Project Timeline header without overflow. The only remaining Atlas references in application source and exported content concern the figure in Plato's text.
 
-Latest deployment: 0.4.8, `dpl_1w7mMnEA1RdiWpDbGfugqfH6t41y`. The former 0.4.7 deployment was `dpl_4wpo6CZcPQZNijTJH5mftSbzwXkT`. No custom domain is configured.
+Latest deployment: 0.4.8, `dpl_AmqiCzjDoZXZKuP7EMC4RTzM6Cdk`, refreshed after removing the legacy aliases. Both old public aliases return HTTP 404; the Project Timeline address remains live. The former 0.4.7 deployment was `dpl_4wpo6CZcPQZNijTJH5mftSbzwXkT`. No custom domain is configured. Historical deployments remain available in Vercel's deployment history.
 
 Version 0.4.7 improves search discovery across unselected tracks, preserves book-reading context through in-place passage dialogs and retains source search queries in the URL. Book filters have a reset control. The 27-test browser suite passes, including new desktop/mobile search recovery, book dialog focus/scroll/Back/reload checks, source navigation and existing gesture/static checks; all 20 unit tests pass. Book expansion and pagination remain in memory for the mounted page; a full reload preserves filters and the open passage, but resets chapter expansion. No new historical records were added; the full-book review limitations below still apply.
 
