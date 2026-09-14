@@ -1,8 +1,8 @@
 # Engineer handoff
 
-This is a standalone personal project at `D:\Dev\Repositories\parallel-atlas`, owned by `wouteth`. Its private remote is `https://github.com/wouteth/parallel-atlas`. It has no dependencies on Devly packages or services and is outside the Devly worktree.
+This is a standalone open-source project at `D:\Dev\Repositories\parallel-atlas`, owned by `wouteth`. Its public remote is `https://github.com/wouteth/parallel-atlas`. It has no dependencies on another project's packages or services.
 
-The private remote was created on September 13, 2026, and the owner subsequently authorized the initial commit and push. The working copy stays on the D: development drive. The portable ZIP is next to the project at `D:\Dev\Repositories\parallel-atlas.zip`. Future pushes require authorization within the requested task's scope.
+The remote was created privately on September 13, 2026, then made public with the owner's authorization on September 14, 2026. Original code and documentation are MIT-licensed; third-party materials retain their own terms. The working copy stays on the D: development drive. The portable ZIP is next to the project at `D:\Dev\Repositories\parallel-atlas.zip` and may predate repository updates. Future pushes require authorization within the requested task's scope.
 
 ## Validation completed
 
@@ -23,7 +23,7 @@ The requested pages, responsive timeline behavior, typed data structures, source
 1. Connect the real OIDC provider and run its live login/callback/logout/second-device flow. This requires credentials not supplied with the request. API tests cover local access rules and persistence; they do not prove an external provider's configuration.
 2. Continue the documented research priorities in `docs/research-log.md`. The collection now contains 205 records, 78 sources, 62 glossary topics, and nine sourced symbol contexts. Eighty-three records remain deliberately unplaced. Source-specific limitations appear in their citations and date notes.
 3. Expand the documentary image collection. Two museum objects now have public-domain photographs and credits. Other photos are explicitly illustrative; the stock archaeology image is Roman architecture, not Göbekli Tepe.
-4. Supply the white paper, project team information, and real author-direct / Patreon / merchandise URLs. No payments, deployment, or external publication have been performed.
+4. Supply the white paper, project team information, and real author-direct / Patreon / merchandise URLs. The source repository is public; payments and a hosted application remain unconfigured.
 5. Configure HTTPS, durable database storage, backups, account data export/deletion, monitoring, and suitable rate limiting before a public launch. The server is one process with SQLite; concurrent library updates currently use last-write-wins replacement.
 6. Test on physical touch devices and with screen readers before launch. Keyboard, reduced-motion, native dialog focus containment, and responsive layouts are implemented. This scaffold has not had a full accessibility audit.
 

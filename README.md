@@ -1,6 +1,36 @@
 # Parallel Atlas
 
-An exportable, responsive research atlas for comparing accounts of the past. This edition contains 205 records, 78 sources, 62 glossary topics, and 14 symbols with nine sourced cultural contexts. Copy this entire folder to your engineer's machine; it has its own dependency catalog and lockfile and requires nothing from the parent repository.
+An open-source research atlas for exploring how archaeology, sacred texts, classical literature, and alternative accounts describe the past. Compare their chronologies on one interactive timeline, follow each account back to its sources, and see where dates, interpretations, and evidence differ.
+
+[Get started](#run-locally) · [Contribute](CONTRIBUTING.md) · [Roadmap](ROADMAP.md) · [Get help](SUPPORT.md) · [MIT license](LICENSE)
+
+![Parallel Atlas desktop timeline with parallel source tracks](docs/screenshots/desktop-timeline.png)
+
+## Why this project exists
+
+Parallel Atlas aims to make comparisons that usually require switching between books, websites, and incompatible timelines easier to explore. It serves curious readers, researchers, educators, and developers who want a traceable starting point for studying accounts of the past.
+
+The goals are to:
+
+- Place different accounts on a shared date scale while preserving each source's context and evidence category.
+- Make every entry traceable to a passage, chapter, artifact record, or research publication.
+- Show how dates were derived, retain uncertainty, and leave accounts without a defensible calendar date unplaced.
+- Connect related events, sources, glossary topics, and symbols through searchable, shareable views.
+- Keep the code and structured collection portable so others can inspect, correct, and extend the atlas.
+
+Positioning accounts beside one another does not establish that they describe the same event or carry equal evidential support. The atlas is a reading and research tool; inclusion records an attributed account, not the project's endorsement of it. A missing comparison entry describes a gap in this collection. It does not establish a gap in scholarship.
+
+## Project status
+
+This is an early research edition maintained by [@wouteth](https://github.com/wouteth). It contains 205 records, 78 sources, 62 glossary topics, and 14 symbols with nine sourced cultural contexts. Eighty-three records remain unplaced. Coverage is incomplete and citation verification varies by entry; the [research log](docs/research-log.md) records those limits.
+
+Timeline exploration, comparisons, reference pages, and guest bookmarks work locally without credentials. Account integration requires an OIDC provider and live verification. A hosted public service, finished white paper, and production account operations are still future work. See the [roadmap](ROADMAP.md) and [technical handoff](HANDOFF.md).
+
+## Join the project
+
+Useful contributions include sourced corrections, clearer explanations, documentary images with reuse rights, accessibility checks, reproducible bug reports, and focused code improvements. You do not need to write code to help.
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md), use the [issue templates](https://github.com/wouteth/parallel-atlas/issues/new/choose), and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Research contributions follow the [content guide](docs/content-guide.md). Report vulnerabilities through the private route in [SECURITY.md](SECURITY.md).
 
 ## Run locally
 
@@ -119,7 +149,7 @@ parallel-atlas/
 
 React 19 and strict TypeScript provide the component and content model. Vite builds a small client bundle. Native SVG and Pointer Events implement the timeline: there is one numeric scale, reused across every track, with no date-library or visualization-library interpretation of ancient dates. CSS custom properties and media queries implement the visual system; a CSS framework is not required. Node's HTTP and SQLite APIs keep the server portable. `openid-client` handles the OIDC protocol rather than a custom password implementation.
 
-Dependencies follow the parent repository's catalog versions, copied into this standalone folder. The lockfile makes the exported project reproducible. Dependency modernization can happen independently after handoff.
+Dependencies use this project's own pnpm catalog and lockfile. The repository is standalone and requires no packages or infrastructure from another project.
 
 The timeline now spans 100,000 BCE to the current year. Additional 10,000- and 50,000-year steps keep the broad view readable. Annual navigation is available at maximum zoom even for older dates; an approximate source remains approximate at any zoom.
 
