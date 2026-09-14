@@ -185,3 +185,7 @@ The bundled photographs are illustrative stock, **not photographs or reconstruct
 - `manuscript.jpg`: https://images.unsplash.com/photo-1507842217343-583bb7270b66 (a library interior)
 
 The favicon and SVG fallback were drawn for this scaffold. Fonts are DM Sans and Instrument Serif, served through Google Fonts with system fallbacks; self-host licensed font files if the project needs fully offline presentation or no third-party font requests.
+
+## License
+
+The original code and documentation are licensed under the [MIT License](LICENSE). Third-party images and source materials retain their respective licenses and rights; see the source and image credits above.
